@@ -7,6 +7,10 @@ import { LANGS, useT } from '@/lib/i18n';
 import { usePresence } from '@/lib/usePresence';
 import DemoVideo from '@/components/DemoVideo';
 
+const GITHUB_URL =
+  process.env.NEXT_PUBLIC_GITHUB_URL ??
+  'https://github.com/tamerlanmusayev/cruxai-frontend';
+
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { lang, setLang, t } = useT();
   const online = usePresence();
@@ -79,7 +83,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               </Link>
             ))}
             <a
-              href="https://github.com/tamerlanmusayev"
+              href={GITHUB_URL}
               target="_blank"
               rel="noreferrer"
               className="hover:text-ink"
@@ -128,7 +132,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 </Link>
               ))}
               <a
-                href="https://github.com/tamerlanmusayev"
+                href={GITHUB_URL}
                 target="_blank"
                 rel="noreferrer"
                 className="rounded-lg px-2 py-2 hover:bg-white/5"
