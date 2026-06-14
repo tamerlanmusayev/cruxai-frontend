@@ -57,6 +57,8 @@
   "quiz.another": "Upload another",
   "quiz.adaptive": "Adaptive — focused on your weak spots:",
   "quiz.answered": "{a} / {n} answered",
+  "quiz.refresh": "🎯 Refresh on weak spots",
+  "exam.new": "🔄 New exam",
   "nav.progress": "Progress",
   "progress.title": "My progress",
   "progress.sub": "Concept mastery from your quizzes, lowest first.",

@@ -7,6 +7,7 @@ import {
   AttemptResult,
   Quiz,
   generateQuiz,
+  refreshQuiz,
   submitAttempt,
 } from '@/lib/api';
 import { ensureToken } from '@/lib/auth';
@@ -41,6 +42,21 @@ export default function QuizPage() {
       active = false;
     };
   }, [id]);
+
+  async function handleRefresh() {
+    setError(null);
+    setResult(null);
+    setLoading(true);
+    try {
+      const q = await refreshQuiz(id);
+      setQuiz(q);
+      setAnswers(new Array(q.questions.length).fill(-1));
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function handleSubmit() {
     if (!quiz) return;
@@ -84,11 +100,19 @@ export default function QuizPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">{t('quiz.title')}</h1>
-        <Link href={`/doc/${id}`} className="text-sm text-brand hover:underline">
-          {t('quiz.summary')}
-        </Link>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleRefresh}
+            className="text-sm text-fuchsia-300 hover:underline"
+          >
+            {t('quiz.refresh')}
+          </button>
+          <Link href={`/doc/${id}`} className="text-sm text-brand hover:underline">
+            {t('quiz.summary')}
+          </Link>
+        </div>
       </div>
 
       {quiz.adaptive && (

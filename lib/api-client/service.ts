@@ -185,6 +185,25 @@ export class QuizService {
       axios(configs, resolve, reject);
     });
   }
+  /**
+   *
+   */
+  static quizControllerRefresh(
+    params: {
+      /**  */
+      id: string;
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + '/documents/{id}/quiz/refresh';
+      url = url.replace('{id}', params['id'] + '');
+
+      const configs: IRequestConfig = getConfigs('post', 'application/json', url, options);
+
+      axios(configs, resolve, reject);
+    });
+  }
 }
 
 export class AttemptsService {
@@ -309,6 +328,25 @@ export class ExamsService {
   ): Promise<any> {
     return new Promise((resolve, reject) => {
       let url = basePath + '/documents/{id}/exams';
+      url = url.replace('{id}', params['id'] + '');
+
+      const configs: IRequestConfig = getConfigs('post', 'application/json', url, options);
+
+      axios(configs, resolve, reject);
+    });
+  }
+  /**
+   *
+   */
+  static examsControllerCreateNew(
+    params: {
+      /**  */
+      id: string;
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + '/documents/{id}/exams/new';
       url = url.replace('{id}', params['id'] + '');
 
       const configs: IRequestConfig = getConfigs('post', 'application/json', url, options);

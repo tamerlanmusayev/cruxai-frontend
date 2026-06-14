@@ -57,6 +57,8 @@
   "quiz.another": "Başqasını yüklə",
   "quiz.adaptive": "Adaptiv — zəif yerlərinə görə:",
   "quiz.answered": "cavablandı {a} / {n}",
+  "quiz.refresh": "🎯 Zəif yerlərə görə yenilə",
+  "exam.new": "🔄 Yeni imtahan",
   "nav.progress": "İrəliləyiş",
   "progress.title": "İrəliləyişim",
   "progress.sub": "Testlərinə görə mövzu mənimsəmən, zəiflər öndə.",

@@ -178,6 +178,11 @@ export async function generateQuiz(docId: string): Promise<Quiz> {
   return QuizService.quizControllerGenerate({ id: docId });
 }
 
+/** Regenerate the quiz focused on weak concepts (rate-limited server-side). */
+export async function refreshQuiz(docId: string): Promise<Quiz> {
+  return QuizService.quizControllerRefresh({ id: docId });
+}
+
 export async function submitAttempt(
   quizId: string,
   answers: number[],
@@ -212,6 +217,11 @@ export async function getGraph(docId: string): Promise<Graph> {
 
 export async function createExam(docId: string): Promise<Exam> {
   return ExamsService.examsControllerCreate({ id: docId });
+}
+
+/** Generate a brand-new exam (rate-limited server-side). */
+export async function createNewExam(docId: string): Promise<Exam> {
+  return ExamsService.examsControllerCreateNew({ id: docId });
 }
 
 export async function submitExam(

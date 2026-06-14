@@ -1,7 +1,10 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { toPng } from 'html-to-image';
+import { toPng, toCanvas } from 'html-to-image';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { jsPDF } from 'jspdf';
 import { mdToPlainText, speechLang } from '@/lib/text';
 import { API_URL } from '@/lib/api';
 import { useT } from '@/lib/i18n';
@@ -28,7 +31,9 @@ export default function SummaryActions({
   const { t } = useT();
   const [speaking, setSpeaking] = useState(false);
   const [cardBusy, setCardBusy] = useState(false);
+  const [pdfBusy, setPdfBusy] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const notesRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   function browserSpeak() {
@@ -86,18 +91,38 @@ export default function SummaryActions({
     browserSpeak();
   }
 
-  function downloadNotes() {
-    const body =
-      `# ${title}\n\n## Key takeaways\n` +
-      keyPoints.map((k) => `- ${k}`).join('\n') +
-      `\n\n${contentMd}\n`;
-    const blob = new Blob([body], { type: 'text/markdown;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${safeName(title)}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
+  // Render the notes node to a canvas, then slice it across A4 pages.
+  // We rasterize the browser-rendered DOM so Cyrillic / Azerbaijani glyphs
+  // survive — jsPDF's built-in fonts only cover Latin-1.
+  async function downloadNotes() {
+    if (!notesRef.current || pdfBusy) return;
+    setPdfBusy(true);
+    try {
+      const canvas = await toCanvas(notesRef.current, {
+        pixelRatio: 2,
+        backgroundColor: '#ffffff',
+        cacheBust: true,
+      });
+      const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
+      const pw = pdf.internal.pageSize.getWidth();
+      const ph = pdf.internal.pageSize.getHeight();
+      const imgW = pw;
+      const imgH = (canvas.height * pw) / canvas.width;
+      const img = canvas.toDataURL('image/png');
+      let heightLeft = imgH;
+      let position = 0;
+      pdf.addImage(img, 'PNG', 0, position, imgW, imgH);
+      heightLeft -= ph;
+      while (heightLeft > 0) {
+        position -= ph;
+        pdf.addPage();
+        pdf.addImage(img, 'PNG', 0, position, imgW, imgH);
+        heightLeft -= ph;
+      }
+      pdf.save(`${safeName(title)}.pdf`);
+    } finally {
+      setPdfBusy(false);
+    }
   }
 
   async function downloadCard() {
@@ -128,9 +153,10 @@ export default function SummaryActions({
         </button>
         <button
           onClick={downloadNotes}
-          className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 hover:border-white/25"
+          disabled={pdfBusy}
+          className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 hover:border-white/25 disabled:opacity-50"
         >
-          {t('doc.downloadNotes')}
+          {pdfBusy ? '…' : t('doc.downloadNotes')}
         </button>
         <button
           onClick={downloadCard}
@@ -139,6 +165,31 @@ export default function SummaryActions({
         >
           {cardBusy ? '…' : t('doc.downloadCard')}
         </button>
+      </div>
+
+      {/* Off-screen notes document rasterized into the downloadable PDF */}
+      <div className="pointer-events-none fixed -left-[9999px] top-0">
+        <div
+          ref={notesRef}
+          style={{ width: 760, color: '#1a1a2e', background: '#ffffff' }}
+          className="px-14 py-12"
+        >
+          <h1 className="font-hand text-4xl text-brand">{title}</h1>
+          {keyPoints.length > 0 && (
+            <>
+              <p className="mt-6 text-lg font-semibold">★ Key takeaways</p>
+              <ul className="mt-3 list-disc space-y-1.5 pl-6 text-[15px] leading-relaxed">
+                {keyPoints.map((k, i) => (
+                  <li key={i}>{k}</li>
+                ))}
+              </ul>
+            </>
+          )}
+          <div className="prose-note mt-8 text-[15px] leading-relaxed">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{contentMd}</ReactMarkdown>
+          </div>
+          <p className="mt-10 text-xs text-slate-400">made with CruxAI · cruxai.az</p>
+        </div>
       </div>
 
       {/* Off-screen shareable card captured to PNG */}

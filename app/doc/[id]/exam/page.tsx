@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import { Exam, ExamResult, createExam, submitExam } from '@/lib/api';
+import { Exam, ExamResult, createExam, createNewExam, submitExam } from '@/lib/api';
 import { ensureToken } from '@/lib/auth';
 import { useT } from '@/lib/i18n';
 
@@ -45,6 +45,21 @@ export default function ExamPage() {
       setError((err as Error).message);
     }
   }, [exam, answers, result]);
+
+  async function newExam() {
+    setError(null);
+    setResult(null);
+    setExam(null);
+    try {
+      await ensureToken();
+      const e = await createNewExam(id);
+      setExam(e);
+      setAnswers(new Array(e.questions.length).fill(-1));
+      setLeft(e.durationSec);
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  }
 
   // countdown
   useEffect(() => {
@@ -110,6 +125,12 @@ export default function ExamPage() {
               </ul>
             </div>
           )}
+          <button
+            onClick={newExam}
+            className="btn-glow mt-5 rounded-lg px-6 py-3 font-medium"
+          >
+            {t('exam.new')}
+          </button>
         </div>
       )}
 
