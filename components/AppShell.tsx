@@ -92,7 +92,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         href="/"
         className="btn-glow mt-6 flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold"
       >
-        <span aria-hidden className="text-base">＋</span>
+        <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden>
+          <path d="M10 4v12M4 10h12" />
+        </svg>
         <span>{t('nav.new')}</span>
       </Link>
 
