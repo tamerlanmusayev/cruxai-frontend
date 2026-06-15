@@ -295,13 +295,6 @@ export default function HomePage() {
       {askLang && (
         <Modal onClose={() => setAskLang(false)}>
           <div className="text-center">
-            <button
-              onClick={() => setAskLang(false)}
-              aria-label={t('home.cancel')}
-              className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-white/10 hover:text-ink"
-            >
-              ✕
-            </button>
             <p className="text-lg font-semibold">{t('home.notesLang')}</p>
             <p className="mt-1 text-sm text-slate-400">{t('home.notesLangHint')}</p>
 

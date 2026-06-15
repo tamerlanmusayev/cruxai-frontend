@@ -25,6 +25,7 @@ export default function ReviewsSection() {
   const [data, setData] = useState<ReviewsSummary | null>(null);
   const [open, setOpen] = useState(false);
   const [rating, setRating] = useState(5);
+  const [hover, setHover] = useState(0);
   const [comment, setComment] = useState('');
   const [name, setName] = useState('');
   const [sent, setSent] = useState(false);
@@ -43,9 +44,19 @@ export default function ReviewsSection() {
     setBusy(true);
     try {
       const token = await ensureToken();
-      await createReview({ rating, comment: trimmedComment, name: name.trim() || undefined }, token);
+      const saved = await createReview(
+        { rating, comment: trimmedComment, name: name.trim() || undefined },
+        token,
+      );
+      // Optimistically reflect it right away (and correctly even in demo mode,
+      // where the list endpoint returns synthetic data).
+      setData((prev) => {
+        const base = prev ?? { average: 0, count: 0, items: [] };
+        const count = base.count + 1;
+        const average = Math.round(((base.average * base.count + rating) / count) * 10) / 10;
+        return { average, count, items: [saved, ...base.items] };
+      });
       setSent(true);
-      await load();
     } finally {
       setBusy(false);
     }
@@ -104,12 +115,15 @@ export default function ReviewsSection() {
             <>
               <p className="text-lg font-semibold">{t('reviews.leave')}</p>
               <p className="mt-3 text-sm text-[var(--text-muted)]">{t('reviews.your')}</p>
-              <div className="mt-1 text-3xl">
+              <div className="mt-1 text-3xl" onMouseLeave={() => setHover(0)}>
                 {[1, 2, 3, 4, 5].map((n) => (
                   <button
                     key={n}
                     onClick={() => setRating(n)}
-                    className={n <= rating ? 'text-amber-400' : 'text-[var(--border-strong)]'}
+                    onMouseEnter={() => setHover(n)}
+                    className={`transition-transform hover:scale-110 ${
+                      n <= (hover || rating) ? 'text-amber-400' : 'text-[var(--border-strong)]'
+                    }`}
                     aria-label={`${n} stars`}
                   >
                     ★

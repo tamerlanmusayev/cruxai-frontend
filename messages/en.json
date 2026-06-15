@@ -1,5 +1,6 @@
 {
   "nav.new": "New summary",
+  "support.donate": "Buy me a coffee",
   "theme.light": "Light theme",
   "theme.dark": "Dark theme",
   "notify.ready": "Your notes are ready!",
@@ -19,6 +20,7 @@
   "lib.title": "My library",
   "lib.empty": "You haven't created any notes yet.",
   "lib.upload": "Upload your first book →",
+  "lib.more": "Load more",
   "footer.tagline": "open source · built for students across the CIS",
   "home.badge": "AI Learning OS · free · open source",
   "hiw.title": "How it works",

@@ -63,14 +63,6 @@ export default function BookSearchModal({ onClose, onUse, initialTab = 'books' }
 
   return (
     <Modal onClose={onClose} className="max-w-2xl">
-      <button
-        onClick={onClose}
-        aria-label="close"
-        className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-lg text-[var(--text-muted)] hover:bg-white/10 hover:text-[var(--text)]"
-      >
-        ✕
-      </button>
-
       {/* tabs */}
         <div className="mb-4 inline-flex rounded-xl border border-[var(--border)] p-1 text-sm">
           <button

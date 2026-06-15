@@ -12,10 +12,12 @@ export default function Modal({
   onClose,
   children,
   className = 'max-w-sm',
+  hideClose = false,
 }: {
   onClose: () => void;
   children: React.ReactNode;
   className?: string;
+  hideClose?: boolean;
 }) {
   const [mounted, setMounted] = useState(false);
 
@@ -42,6 +44,15 @@ export default function Modal({
         className={`glass relative my-auto w-full p-6 shadow-2xl animate-[hiw-rise_0.25s_ease-out] ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
+        {!hideClose && (
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-lg text-[var(--text-muted)] transition hover:bg-white/10 hover:text-[var(--text)]"
+          >
+            ✕
+          </button>
+        )}
         {children}
       </div>
     </div>,

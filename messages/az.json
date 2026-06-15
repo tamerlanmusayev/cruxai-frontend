@@ -1,5 +1,6 @@
 {
   "nav.new": "Yeni konspekt",
+  "support.donate": "Layihəni dəstəklə",
   "theme.light": "İşıqlı tema",
   "theme.dark": "Qaranlıq tema",
   "notify.ready": "Konspekt hazırdır!",
@@ -19,6 +20,7 @@
   "lib.title": "Kitabxanam",
   "lib.empty": "Hələ heç bir konspekt yaratmamısan.",
   "lib.upload": "İlk kitabını yüklə →",
+  "lib.more": "Daha çox göstər",
   "footer.tagline": "açıq mənbə · MDB tələbələri üçün",
   "home.badge": "AI Learning OS · pulsuz · açıq mənbə",
   "hiw.title": "Necə işləyir",

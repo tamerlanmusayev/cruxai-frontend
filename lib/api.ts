@@ -271,8 +271,15 @@ export async function createReview(
   return postJson<Review>('/reviews', body, token);
 }
 
-export async function getLibrary(): Promise<LibraryItem[]> {
-  return DocumentsService.documentsControllerList();
+export const LIBRARY_PAGE = 10;
+
+export async function getLibrary(skip = 0, take = LIBRARY_PAGE): Promise<LibraryItem[]> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('cruxai_token') : null;
+  const res = await fetch(`${API_URL}/documents?skip=${skip}&take=${take}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
+  if (!res.ok) throw new Error(`Could not load your library (${res.status})`);
+  return res.json();
 }
 
 /** Owner-only inline edit of the generated summary (no AI cost). */

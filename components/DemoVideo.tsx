@@ -35,13 +35,6 @@ export default function DemoVideo() {
 
       {open && (
         <Modal onClose={() => setOpen(false)} className="max-w-5xl">
-          <button
-            onClick={() => setOpen(false)}
-            aria-label="Close"
-            className="absolute -top-3 -right-3 z-10 grid h-9 w-9 place-items-center rounded-full bg-base text-slate-300 ring-1 ring-white/15 hover:text-ink"
-          >
-            ✕
-          </button>
           <p className="px-2 py-2 text-sm font-medium text-slate-300">
             {t('demo.title')}
           </p>

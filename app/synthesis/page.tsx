@@ -19,7 +19,7 @@ export default function SynthesisPage() {
 
   useEffect(() => {
     ensureToken()
-      .then(getLibrary)
+      .then(() => getLibrary(0, 50))
       .then((l) => setItems(l.filter((d) => d.status === 'READY')))
       .catch((e) => setError((e as Error).message));
   }, []);

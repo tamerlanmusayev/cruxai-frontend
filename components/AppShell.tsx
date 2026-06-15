@@ -11,6 +11,7 @@ import DemoVideo from '@/components/DemoVideo';
 const GITHUB_URL =
   process.env.NEXT_PUBLIC_GITHUB_URL ??
   'https://github.com/tamerlanmusayev/cruxai-frontend';
+const DONATE_URL = process.env.NEXT_PUBLIC_DONATE_URL;
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { lang, setLang, t } = useT();
@@ -18,11 +19,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const online = useOnline();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
+  const currentLang = LANGS.find((l) => l.code === lang) ?? LANGS[2];
 
-  // Close the mobile drawer whenever the route changes.
-  useEffect(() => setOpen(false), [pathname]);
+  // Close the mobile drawer / language menu whenever the route changes.
+  useEffect(() => {
+    setOpen(false);
+    setLangOpen(false);
+  }, [pathname]);
 
   // Keep the browser tab title in sync with the current page.
   useEffect(() => {
@@ -109,21 +115,48 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </Link>
 
       <div className="space-y-2.5 border-t border-[var(--border)] pt-4">
-        {/* language segmented control */}
-        <div className="grid grid-cols-4 gap-1 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-1">
-          {LANGS.map((l) => (
-            <button
-              key={l.code}
-              onClick={() => setLang(l.code)}
-              className={`rounded-lg py-1.5 text-xs font-semibold transition ${
-                lang === l.code
-                  ? 'bg-gradient-to-br from-indigo-500 to-fuchsia-500 text-white shadow-glow'
-                  : 'text-[var(--text-muted)] hover:text-[var(--text)]'
-              }`}
+        {/* language dropdown */}
+        <div className="relative">
+          <button
+            onClick={() => setLangOpen((o) => !o)}
+            aria-haspopup="listbox"
+            aria-expanded={langOpen}
+            className="flex w-full items-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--text-muted)] transition hover:border-[var(--border-strong)] hover:text-[var(--text)]"
+          >
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+              <circle cx="12" cy="12" r="9" />
+              <path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18" />
+            </svg>
+            <span className="text-[var(--text)]">{currentLang.native}</span>
+            <span className={`ml-auto text-xs transition ${langOpen ? 'rotate-180' : ''}`}>▾</span>
+          </button>
+          {langOpen && (
+            <div
+              role="listbox"
+              className="absolute bottom-full left-0 right-0 z-20 mb-1 max-h-64 overflow-y-auto rounded-xl border border-[var(--border)] bg-[var(--bg)] p-1 shadow-2xl"
             >
-              {l.label}
-            </button>
-          ))}
+              {LANGS.map((l) => (
+                <button
+                  key={l.code}
+                  role="option"
+                  aria-selected={lang === l.code}
+                  onClick={() => {
+                    setLang(l.code);
+                    setLangOpen(false);
+                  }}
+                  className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition ${
+                    lang === l.code
+                      ? 'bg-[var(--surface-2)] font-semibold text-[var(--text)]'
+                      : 'text-[var(--text-muted)] hover:bg-[var(--surface)] hover:text-[var(--text)]'
+                  }`}
+                >
+                  <span className="w-7 text-xs font-semibold opacity-70">{l.label}</span>
+                  <span>{l.native}</span>
+                  {lang === l.code && <span className="ml-auto text-brand">✓</span>}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* theme toggle */}
@@ -157,6 +190,19 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <span>GitHub</span>
           <span className="ml-auto text-[var(--text-muted)] transition group-hover:text-[var(--text)]">↗</span>
         </a>
+
+        {/* support / donate (optional) */}
+        {DONATE_URL && (
+          <a
+            href={DONATE_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-2.5 rounded-xl border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-sm font-medium text-amber-300 transition hover:border-amber-400/50"
+          >
+            <span>☕</span>
+            <span>{t('support.donate')}</span>
+          </a>
+        )}
 
         {/* tagline */}
         <p className="px-1 pt-1 text-[11px] leading-relaxed text-[var(--text-muted)]">

@@ -12,14 +12,14 @@ import uz from '@/messages/uz.json';
 import ka from '@/messages/ka.json';
 
 export type Lang = 'az' | 'ru' | 'en' | 'tr' | 'kk' | 'uz' | 'ka';
-export const LANGS: { code: Lang; label: string }[] = [
-  { code: 'az', label: 'AZ' },
-  { code: 'ru', label: 'RU' },
-  { code: 'en', label: 'EN' },
-  { code: 'tr', label: 'TR' },
-  { code: 'kk', label: 'KZ' },
-  { code: 'uz', label: 'UZ' },
-  { code: 'ka', label: 'GE' },
+export const LANGS: { code: Lang; label: string; native: string }[] = [
+  { code: 'az', label: 'AZ', native: 'Azərbaycan' },
+  { code: 'ru', label: 'RU', native: 'Русский' },
+  { code: 'en', label: 'EN', native: 'English' },
+  { code: 'tr', label: 'TR', native: 'Türkçe' },
+  { code: 'kk', label: 'KZ', native: 'Қазақша' },
+  { code: 'uz', label: 'UZ', native: 'Oʻzbekcha' },
+  { code: 'ka', label: 'GE', native: 'ქართული' },
 ];
 
 if (!i18next.isInitialized) {

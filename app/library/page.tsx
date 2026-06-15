@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { LibraryItem, getLibrary } from '@/lib/api';
+import { LIBRARY_PAGE, LibraryItem, getLibrary } from '@/lib/api';
 import { ensureToken } from '@/lib/auth';
 import { useT } from '@/lib/i18n';
 
@@ -10,13 +10,35 @@ export default function LibraryPage() {
   const { t } = useT();
   const [items, setItems] = useState<LibraryItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
 
   useEffect(() => {
-    ensureToken()
-      .then(getLibrary)
-      .then(setItems)
-      .catch((e) => setError((e as Error).message));
+    (async () => {
+      try {
+        await ensureToken();
+        const first = await getLibrary(0, LIBRARY_PAGE);
+        setItems(first);
+        setHasMore(first.length === LIBRARY_PAGE);
+      } catch (e) {
+        setError((e as Error).message);
+      }
+    })();
   }, []);
+
+  async function loadMore() {
+    if (!items) return;
+    setLoadingMore(true);
+    try {
+      const next = await getLibrary(items.length, LIBRARY_PAGE);
+      setItems([...items, ...next]);
+      setHasMore(next.length === LIBRARY_PAGE);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setLoadingMore(false);
+    }
+  }
 
   return (
     <div>
@@ -58,6 +80,18 @@ export default function LibraryPage() {
           </li>
         ))}
       </ul>
+
+      {hasMore && (
+        <div className="mt-6 flex justify-center">
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="rounded-lg border border-white/10 bg-white/5 px-6 py-2.5 text-sm font-medium text-slate-200 transition hover:border-white/25 disabled:opacity-50"
+          >
+            {loadingMore ? '…' : t('lib.more')}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
