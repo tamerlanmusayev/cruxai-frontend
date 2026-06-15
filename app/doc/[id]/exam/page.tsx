@@ -2,81 +2,44 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
-import { Exam, ExamResult, createExam, createNewExam, submitExam } from '@/lib/api';
+import { useMachine } from '@xstate/react';
+import { createExam, createNewExam, submitExam } from '@/lib/api';
 import { ensureToken } from '@/lib/auth';
+import { examMachine, ExamContext } from '@/lib/examMachine';
 import AiProgress from '@/components/AiProgress';
 import { useT } from '@/lib/i18n';
 
 export default function ExamPage() {
   const { t } = useT();
   const { id } = useParams<{ id: string }>();
-  const [exam, setExam] = useState<Exam | null>(null);
-  const [answers, setAnswers] = useState<number[]>([]);
-  const [left, setLeft] = useState(0);
-  const [result, setResult] = useState<ExamResult | null>(null);
-  const [timedOut, setTimedOut] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let on = true;
-    (async () => {
-      try {
+  const [state, send] = useMachine(examMachine, {
+    context: {
+      id,
+      fresh: false,
+      exam: null,
+      answers: [],
+      left: 0,
+      result: null,
+      timedOut: false,
+      error: null,
+    } as ExamContext,
+    services: {
+      loadExam: async (ctx) => {
         await ensureToken();
-        const e = await createExam(id);
-        if (!on) return;
-        setExam(e);
-        setAnswers(new Array(e.questions.length).fill(-1));
-        setLeft(e.durationSec);
-      } catch (err) {
-        if (on) setError((err as Error).message);
-      }
-    })();
-    return () => {
-      on = false;
-    };
-  }, [id]);
+        return ctx.fresh ? createNewExam(ctx.id) : createExam(ctx.id);
+      },
+      submit: async (ctx) => {
+        if (!ctx.exam) throw new Error('No exam');
+        return submitExam(ctx.exam.id, ctx.answers);
+      },
+    },
+  });
 
-  const submit = useCallback(async () => {
-    if (!exam || result) return;
-    try {
-      const r = await submitExam(exam.id, answers);
-      setResult(r);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch (err) {
-      setError((err as Error).message);
-    }
-  }, [exam, answers, result]);
+  const { exam, answers, left, result, timedOut, error } = state.context;
+  const scrollTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  async function newExam() {
-    setError(null);
-    setResult(null);
-    setTimedOut(false);
-    setExam(null);
-    try {
-      await ensureToken();
-      const e = await createNewExam(id);
-      setExam(e);
-      setAnswers(new Array(e.questions.length).fill(-1));
-      setLeft(e.durationSec);
-    } catch (err) {
-      setError((err as Error).message);
-    }
-  }
-
-  // countdown — when it hits zero we auto-submit (unanswered count as wrong)
-  useEffect(() => {
-    if (!exam || result) return;
-    if (left <= 0) {
-      setTimedOut(true);
-      submit();
-      return;
-    }
-    const id2 = setTimeout(() => setLeft((s) => s - 1), 1000);
-    return () => clearTimeout(id2);
-  }, [exam, left, result, submit]);
-
-  if (error && !exam) {
+  if (state.matches('failed')) {
     return (
       <div className="mt-20 text-center">
         <p className="text-red-400">{error}</p>
@@ -87,7 +50,7 @@ export default function ExamPage() {
     );
   }
 
-  if (!exam) {
+  if (state.matches('loading') || !exam) {
     return <AiProgress steps={[t('prog.read'), t('prog.examgen'), t('prog.almost')]} />;
   }
 
@@ -108,6 +71,10 @@ export default function ExamPage() {
           </span>
         )}
       </div>
+
+      {error && !result && (
+        <p className="mb-4 text-center text-sm text-red-400">{error}</p>
+      )}
 
       {result && (
         <div className="glass mb-6 p-6 text-center">
@@ -134,7 +101,7 @@ export default function ExamPage() {
             </div>
           )}
           <button
-            onClick={newExam}
+            onClick={() => send({ type: 'NEW' })}
             className="btn-glow mt-5 rounded-lg px-6 py-3 font-medium"
           >
             {t('exam.new')}
@@ -162,7 +129,7 @@ export default function ExamPage() {
                       <input
                         type="radio" name={`q-${qi}`} className="accent-brand"
                         disabled={!!result} checked={chosen}
-                        onChange={() => setAnswers((p) => { const n = [...p]; n[qi] = oi; return n; })}
+                        onChange={() => send({ type: 'ANSWER', qi, oi })}
                       />
                       <span>{opt}</span>
                     </label>
@@ -176,8 +143,15 @@ export default function ExamPage() {
 
       {!result && (
         <div className="mt-8 flex justify-center">
-          <button onClick={submit} className="btn-glow rounded-lg px-6 py-3 font-medium">
-            {t('exam.finish')}
+          <button
+            onClick={() => {
+              send({ type: 'SUBMIT' });
+              scrollTop();
+            }}
+            disabled={state.matches('submitting')}
+            className="btn-glow rounded-lg px-6 py-3 font-medium disabled:opacity-50"
+          >
+            {state.matches('submitting') ? t('quiz.grading') : t('exam.finish')}
           </button>
         </div>
       )}
