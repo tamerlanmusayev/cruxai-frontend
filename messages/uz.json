@@ -167,5 +167,11 @@
   "lib.deleteBody": "“{title}” va undan yaratilgan hamma narsa (test, kartalar, progress) butunlay o‘chiriladi.",
   "lib.more": "Ko‘proq ko‘rsatish",
   "common.cancel": "Bekor qilish",
-  "usage.label": "Bugun qolgan generatsiyalar"
+  "usage.label": "Bugun qolgan generatsiyalar",
+  "auth.signIn": "Kirish",
+  "auth.signOut": "Chiqish",
+  "auth.title": "Davom etish uchun kiring",
+  "auth.hint": "Konspekt yaratish va kutubxonangizni saqlash uchun bepul hisob yarating.",
+  "auth.privacy": "Faqat kutubxonangizni saqlash uchun Google pochtangizdan foydalanamiz. Hech narsa ulashilmaydi.",
+  "auth.notConfigured": "Google orqali kirish hali sozlanmagan. NEXT_PUBLIC_GOOGLE_CLIENT_ID qo‘shing."
 }

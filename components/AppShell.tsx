@@ -8,6 +8,7 @@ import { useTheme } from '@/lib/theme';
 import { useOnline } from '@/lib/socket';
 import { UsageStatus, getUsage } from '@/lib/api';
 import { ensureToken } from '@/lib/auth';
+import { useAuth } from '@/lib/auth-context';
 import DemoVideo from '@/components/DemoVideo';
 
 const GITHUB_URL =
@@ -20,6 +21,7 @@ const DONATE_URL =
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { lang, setLang, t } = useT();
   const { theme, toggle } = useTheme();
+  const { user, signedIn, openLogin, logout } = useAuth();
   const online = useOnline();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -161,6 +163,51 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       )}
 
       <div className="space-y-2 border-t border-[var(--border)] pt-3">
+        {/* account — Google sign-in / signed-in chip */}
+        {signedIn && user ? (
+          <div className="flex items-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2">
+            {user.picture ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={user.picture}
+                alt=""
+                referrerPolicy="no-referrer"
+                className="h-7 w-7 shrink-0 rounded-full"
+              />
+            ) : (
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[var(--surface-2)] text-xs font-semibold text-[var(--text)]">
+                {(user.name ?? user.email ?? '?').slice(0, 1).toUpperCase()}
+              </span>
+            )}
+            <span className="min-w-0 flex-1 truncate text-sm text-[var(--text)]">
+              {user.name ?? user.email}
+            </span>
+            <button
+              onClick={logout}
+              aria-label={t('auth.signOut')}
+              title={t('auth.signOut')}
+              className="shrink-0 text-[var(--text-muted)] transition hover:text-[var(--text)]"
+            >
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
+              </svg>
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => openLogin()}
+            className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--text)] transition hover:border-[var(--border-strong)]"
+          >
+            <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden>
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z" />
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0012 23z" />
+              <path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 010-4.2V7.06H2.18a11 11 0 000 9.88l3.66-2.84z" />
+              <path fill="#EA4335" d="M12 4.75c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.46 1.46 14.97.5 12 .5A11 11 0 002.18 7.06l3.66 2.84C6.71 7.3 9.14 4.75 12 4.75z" />
+            </svg>
+            {t('auth.signIn')}
+          </button>
+        )}
+
         {/* language dropdown */}
         <div className="relative">
           <button

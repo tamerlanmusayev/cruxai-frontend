@@ -176,5 +176,11 @@
   "lib.deleteTitle": "Bu konspekt silinsin?",
   "lib.deleteBody": "«{title}» və ondan yaradılan hər şey (test, kartlar, irəliləyiş) həmişəlik silinəcək.",
   "common.cancel": "Ləğv et",
-  "usage.label": "Bu gün qalan generasiyalar"
+  "usage.label": "Bu gün qalan generasiyalar",
+  "auth.signIn": "Daxil ol",
+  "auth.signOut": "Çıxış",
+  "auth.title": "Davam etmək üçün daxil ol",
+  "auth.hint": "Konspekt yaratmaq və kitabxananı saxlamaq üçün pulsuz hesab yarat.",
+  "auth.privacy": "Yalnız Google e-poçtundan kitabxananı saxlamaq üçün istifadə edirik. Heç nə paylaşılmır.",
+  "auth.notConfigured": "Google ilə giriş hələ qurulmayıb. NEXT_PUBLIC_GOOGLE_CLIENT_ID əlavə et."
 }

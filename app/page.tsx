@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { createFromSources, overviewBook, uploadFiles } from '@/lib/api';
 import { ensureToken } from '@/lib/auth';
+import { useAuth } from '@/lib/auth-context';
 import { getRecaptchaToken } from '@/lib/recaptcha';
 import { LANGS, Lang, useT } from '@/lib/i18n';
 import HowItWorksDemo from '@/components/HowItWorksDemo';
@@ -32,6 +33,7 @@ function humanSize(bytes: number): string {
 export default function HomePage() {
   const router = useRouter();
   const { t, lang } = useT();
+  const { signedIn, openLogin } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
@@ -106,6 +108,15 @@ export default function HomePage() {
 
   async function submitWith(notesLang: Lang) {
     if (!pending && !canStart) return;
+    // Generation costs AI tokens — require a real account first (variant 1:
+    // browse freely as a guest, sign in only at the moment of generating).
+    if (!signedIn) {
+      setAskLang(false);
+      openLogin(() => {
+        void submitWith(notesLang);
+      });
+      return;
+    }
     setAskLang(false);
     setBusy(true);
     setError(null);

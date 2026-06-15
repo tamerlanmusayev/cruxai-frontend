@@ -167,5 +167,11 @@
   "lib.deleteBody": "“{title}” ve ondan üretilen her şey (test, kartlar, ilerleme) kalıcı olarak silinecek.",
   "lib.more": "Daha fazla göster",
   "common.cancel": "İptal",
-  "usage.label": "Bugün kalan üretim"
+  "usage.label": "Bugün kalan üretim",
+  "auth.signIn": "Giriş yap",
+  "auth.signOut": "Çıkış",
+  "auth.title": "Devam etmek için giriş yap",
+  "auth.hint": "Not oluşturmak ve kütüphaneni saklamak için ücretsiz hesabını oluştur.",
+  "auth.privacy": "Yalnızca kütüphaneni kaydetmek için Google e-postanı kullanırız. Hiçbir şey paylaşılmaz.",
+  "auth.notConfigured": "Google ile giriş henüz ayarlanmadı. NEXT_PUBLIC_GOOGLE_CLIENT_ID ekle."
 }

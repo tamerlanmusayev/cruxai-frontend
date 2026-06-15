@@ -4,6 +4,7 @@ import './globals.css';
 import { LangProvider } from '@/lib/i18n';
 import { ThemeProvider, themeNoFlashScript } from '@/lib/theme';
 import { SocketProvider } from '@/lib/socket';
+import { AuthProvider } from '@/lib/auth-context';
 import AppShell from '@/components/AppShell';
 import Analytics from '@/components/Analytics';
 
@@ -70,7 +71,9 @@ export default function RootLayout({
         <ThemeProvider>
           <LangProvider>
             <SocketProvider>
-              <AppShell>{children}</AppShell>
+              <AuthProvider>
+                <AppShell>{children}</AppShell>
+              </AuthProvider>
             </SocketProvider>
           </LangProvider>
         </ThemeProvider>

@@ -176,5 +176,11 @@
   "lib.deleteTitle": "Delete this note?",
   "lib.deleteBody": "“{title}” and everything generated from it (quiz, flashcards, progress) will be permanently removed. This can’t be undone.",
   "common.cancel": "Cancel",
-  "usage.label": "Generations left today"
+  "usage.label": "Generations left today",
+  "auth.signIn": "Sign in",
+  "auth.signOut": "Sign out",
+  "auth.title": "Sign in to continue",
+  "auth.hint": "Create your free account to generate notes and keep your library.",
+  "auth.privacy": "We only use your Google email to save your library. Nothing is shared.",
+  "auth.notConfigured": "Google sign-in isn’t set up yet. Add NEXT_PUBLIC_GOOGLE_CLIENT_ID."
 }
