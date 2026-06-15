@@ -118,7 +118,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <span>{t('nav.stats')}</span>
       </Link>
 
-      <div className="space-y-2.5 border-t border-[var(--border)] pt-4">
+      <div className="space-y-2 border-t border-[var(--border)] pt-3">
         {/* language dropdown */}
         <div className="relative">
           <button
@@ -163,58 +163,57 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           )}
         </div>
 
-        {/* theme toggle */}
-        <button
-          onClick={toggle}
-          className="flex w-full items-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--text-muted)] transition hover:border-[var(--border-strong)] hover:text-[var(--text)]"
-        >
-          {theme === 'dark' ? (
-            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <circle cx="12" cy="12" r="4" />
-              <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" />
-            </svg>
-          ) : (
-            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" />
-            </svg>
-          )}
-          <span>{theme === 'dark' ? t('theme.light') : t('theme.dark')}</span>
-        </button>
-
-        {/* GitHub */}
-        <a
-          href={GITHUB_URL}
-          target="_blank"
-          rel="noreferrer"
-          className="group flex items-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--text-muted)] transition hover:border-[var(--border-strong)] hover:text-[var(--text)]"
-        >
-          <svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor" aria-hidden>
-            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z" />
-          </svg>
-          <span>GitHub</span>
-          <span className="ml-auto text-[var(--text-muted)] transition group-hover:text-[var(--text)]">↗</span>
-        </a>
-
-        {/* buy me a coffee */}
+        {/* buy me a coffee — the one accent action */}
         <a
           href={DONATE_URL}
           target="_blank"
           rel="noreferrer"
-          className="flex items-center gap-2.5 rounded-xl border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-sm font-semibold text-amber-300 transition hover:border-amber-400/60 hover:bg-amber-400/15"
+          className="flex items-center justify-center gap-2 rounded-xl border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-sm font-semibold text-amber-300 transition hover:border-amber-400/60 hover:bg-amber-400/15"
         >
           <span>☕</span>
           <span>{t('support.donate')}</span>
         </a>
 
-        {/* legal */}
-        <div className="flex gap-3 px-1 text-[11px] text-[var(--text-muted)]">
-          <Link href="/privacy" className="hover:text-[var(--text)]">Privacy</Link>
-          <Link href="/terms" className="hover:text-[var(--text)]">Terms</Link>
+        {/* compact icon row: theme + GitHub */}
+        <div className="flex gap-2">
+          <button
+            onClick={toggle}
+            aria-label={theme === 'dark' ? t('theme.light') : t('theme.dark')}
+            title={theme === 'dark' ? t('theme.light') : t('theme.dark')}
+            className="grid h-9 flex-1 place-items-center rounded-lg border border-[var(--border)] text-[var(--text-muted)] transition hover:border-[var(--border-strong)] hover:text-[var(--text)]"
+          >
+            {theme === 'dark' ? (
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" />
+              </svg>
+            )}
+          </button>
+          <a
+            href={GITHUB_URL}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="GitHub"
+            title="GitHub"
+            className="grid h-9 flex-1 place-items-center rounded-lg border border-[var(--border)] text-[var(--text-muted)] transition hover:border-[var(--border-strong)] hover:text-[var(--text)]"
+          >
+            <svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor" aria-hidden>
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z" />
+            </svg>
+          </a>
         </div>
 
-        {/* tagline */}
+        {/* tagline + legal — one quiet line */}
         <p className="px-1 pt-1 text-[11px] leading-relaxed text-[var(--text-muted)]">
-          <span className="grad-text font-semibold">CruxAI</span> · {t('footer.tagline')}
+          <Link href="/privacy" className="hover:text-[var(--text)]">Privacy</Link>
+          {' · '}
+          <Link href="/terms" className="hover:text-[var(--text)]">Terms</Link>
+          {' · '}
+          {t('footer.tagline')}
         </p>
       </div>
     </div>
