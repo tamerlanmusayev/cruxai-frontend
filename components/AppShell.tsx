@@ -24,6 +24,24 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   // Close the mobile drawer whenever the route changes.
   useEffect(() => setOpen(false), [pathname]);
 
+  // Keep the browser tab title in sync with the current page.
+  useEffect(() => {
+    const map: Record<string, string> = {
+      '/library': t('lib.title'),
+      '/review': t('fc.review'),
+      '/progress': t('progress.title'),
+      '/synthesis': t('syn.title'),
+      '/stats': t('nav.stats'),
+    };
+    let section: string | undefined;
+    if (pathname === '/') section = undefined;
+    else if (pathname.startsWith('/doc')) section = t('doc.notes');
+    else section = map[pathname];
+    document.title = section
+      ? `${section} · CruxAI`
+      : 'CruxAI — master any book with AI';
+  }, [pathname, lang, t]);
+
   // Primary navigation (the core flow). Stats lives separately at the bottom.
   const mainLinks = [
     { href: '/library', label: t('nav.library'), icon: '📚' },

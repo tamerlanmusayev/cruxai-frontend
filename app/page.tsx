@@ -33,6 +33,7 @@ export default function HomePage() {
   const [askLang, setAskLang] = useState(false);
   const [modalLang, setModalLang] = useState<Lang>(lang);
   const [showBooks, setShowBooks] = useState(false);
+  const [booksTab, setBooksTab] = useState<'books' | 'link'>('books');
 
   useEffect(() => {
     if (!askLang) return;
@@ -138,8 +139,6 @@ export default function HomePage() {
         🆓 {t('free.badge')}
       </div>
 
-      <HowItWorksDemo />
-
       <div
         onDragOver={(e) => {
           e.preventDefault();
@@ -186,14 +185,20 @@ export default function HomePage() {
       </div>
       <div className="mt-4 flex flex-wrap justify-center gap-3">
         <button
-          onClick={() => setShowBooks(true)}
+          onClick={() => {
+            setBooksTab('books');
+            setShowBooks(true);
+          }}
           disabled={busy}
           className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-white/25 disabled:opacity-50"
         >
           📚 {t('books.search')}
         </button>
         <button
-          onClick={() => setShowBooks(true)}
+          onClick={() => {
+            setBooksTab('link');
+            setShowBooks(true);
+          }}
           disabled={busy}
           className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-white/25 disabled:opacity-50"
         >
@@ -274,10 +279,16 @@ export default function HomePage() {
         </ul>
       </div>
 
+      <HowItWorksDemo />
+
       <ReviewsSection />
 
       {showBooks && (
-        <BookSearchModal onClose={() => setShowBooks(false)} onUse={startFromSources} />
+        <BookSearchModal
+          initialTab={booksTab}
+          onClose={() => setShowBooks(false)}
+          onUse={startFromSources}
+        />
       )}
 
       {/* language popup — shown right after files are added */}

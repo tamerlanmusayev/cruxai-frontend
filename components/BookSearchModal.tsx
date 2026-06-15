@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { BookHit, getBooksCount, searchBooks } from '@/lib/api';
 import Modal from '@/components/Modal';
 import { useT } from '@/lib/i18n';
@@ -8,11 +8,15 @@ import { useT } from '@/lib/i18n';
 interface Props {
   onClose: () => void;
   onUse: (source: { url: string; name: string }) => void;
+  initialTab?: 'books' | 'link';
 }
 
-export default function BookSearchModal({ onClose, onUse }: Props) {
+const DEBOUNCE_MS = 500;
+const MIN_QUERY = 2;
+
+export default function BookSearchModal({ onClose, onUse, initialTab = 'books' }: Props) {
   const { t } = useT();
-  const [tab, setTab] = useState<'books' | 'link'>('books');
+  const [tab, setTab] = useState<'books' | 'link'>(initialTab);
   const [q, setQ] = useState('');
   const [hits, setHits] = useState<BookHit[]>([]);
   const [searching, setSearching] = useState(false);
@@ -24,18 +28,31 @@ export default function BookSearchModal({ onClose, onUse }: Props) {
     getBooksCount().then(setCount).catch(() => {});
   }, []);
 
-  async function doSearch() {
-    if (!q.trim()) return;
+  const doSearch = useCallback(async (query: string) => {
+    const term = query.trim();
+    if (term.length < MIN_QUERY) {
+      setHits([]);
+      setSearched(false);
+      return;
+    }
     setSearching(true);
     setSearched(true);
     try {
-      setHits(await searchBooks(q));
+      setHits(await searchBooks(term));
     } catch {
       setHits([]);
     } finally {
       setSearching(false);
     }
-  }
+  }, []);
+
+  // Lazy search: fire only after the user pauses typing; each keystroke
+  // resets the timer, so it never fires mid-typing.
+  useEffect(() => {
+    if (tab !== 'books') return;
+    const id = setTimeout(() => doSearch(q), DEBOUNCE_MS);
+    return () => clearTimeout(id);
+  }, [q, tab, doSearch]);
 
   function importLink() {
     const url = link.trim();
@@ -82,11 +99,11 @@ export default function BookSearchModal({ onClose, onUse }: Props) {
                 autoFocus
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && doSearch()}
+                onKeyDown={(e) => e.key === 'Enter' && doSearch(q)}
                 placeholder={t('books.placeholder')}
                 className="flex-1 rounded-lg border border-[var(--border)] bg-white/5 px-4 py-2.5 text-sm outline-none focus:border-brand"
               />
-              <button onClick={doSearch} className="btn-glow rounded-lg px-5 py-2.5 text-sm font-medium">
+              <button onClick={() => doSearch(q)} className="btn-glow rounded-lg px-5 py-2.5 text-sm font-medium">
                 {t('books.go')}
               </button>
             </div>

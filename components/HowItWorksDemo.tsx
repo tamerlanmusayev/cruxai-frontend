@@ -22,12 +22,12 @@ export default function HowItWorksDemo() {
   const captions = [t('hiw.upload'), t('hiw.read'), t('hiw.notes'), t('hiw.quiz')];
 
   return (
-    <div className="glass mx-auto mt-8 max-w-xl overflow-hidden p-5">
-      <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+    <div className="mx-auto mt-10 max-w-md rounded-2xl border border-[var(--border)] p-4 opacity-80 transition hover:opacity-100">
+      <p className="mb-3 text-center text-xs font-medium uppercase tracking-wide text-[var(--text-muted)]">
         {t('hiw.title')}
       </p>
 
-      <div className="relative h-44 overflow-hidden rounded-xl bg-[var(--surface-2)]">
+      <div className="relative h-36 overflow-hidden rounded-xl bg-[var(--surface-2)]">
         {[0, 1, 2, 3].map((i) => (
           <div
             key={i}
