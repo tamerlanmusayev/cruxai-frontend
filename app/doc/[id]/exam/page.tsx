@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { Exam, ExamResult, createExam, createNewExam, submitExam } from '@/lib/api';
 import { ensureToken } from '@/lib/auth';
+import AiProgress from '@/components/AiProgress';
 import { useT } from '@/lib/i18n';
 
 export default function ExamPage() {
@@ -87,12 +88,7 @@ export default function ExamPage() {
   }
 
   if (!exam) {
-    return (
-      <div className="mt-20 text-center">
-        <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-white/10 border-t-brand" />
-        <p className="text-slate-400">{t('exam.building')}</p>
-      </div>
-    );
+    return <AiProgress steps={[t('prog.read'), t('prog.examgen'), t('prog.almost')]} />;
   }
 
   const mm = String(Math.floor(left / 60)).padStart(2, '0');

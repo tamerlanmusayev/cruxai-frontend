@@ -135,6 +135,27 @@ export interface Synthesis {
   differences: { point: string; sources: string[] }[];
 }
 
+export interface Review {
+  id: string;
+  rating: number;
+  comment: string | null;
+  name: string | null;
+  createdAt: string;
+}
+export interface ReviewsSummary {
+  average: number;
+  count: number;
+  items: Review[];
+}
+
+export interface BookHit {
+  id: number;
+  title: string;
+  author: string;
+  cover: string | null;
+  textUrl: string | null;
+}
+
 // ---------- documents ----------
 
 interface PresignedUpload {
@@ -209,6 +230,45 @@ export async function uploadFiles(
 
 export async function getDocument(id: string): Promise<DocumentDetail> {
   return DocumentsService.documentsControllerFindOne({ id });
+}
+
+/** Create a document from remote sources (a link or a picked book). */
+export async function createFromSources(
+  sources: { url?: string; key?: string; name: string }[],
+  token: string,
+  lang?: string,
+  recaptchaToken?: string,
+): Promise<{ id: string }> {
+  return postJson<{ id: string }>('/documents', { sources, lang }, token, recaptchaToken);
+}
+
+// ---------- book search (public domain) ----------
+
+export async function searchBooks(q: string): Promise<BookHit[]> {
+  const res = await fetch(`${API_URL}/books/search?q=${encodeURIComponent(q)}`);
+  if (!res.ok) throw new Error(`Book search failed (${res.status})`);
+  return res.json();
+}
+
+export async function getBooksCount(): Promise<number> {
+  const res = await fetch(`${API_URL}/books/count`);
+  if (!res.ok) return 0;
+  return (await res.json()).count as number;
+}
+
+// ---------- reviews ----------
+
+export async function getReviews(): Promise<ReviewsSummary> {
+  const res = await fetch(`${API_URL}/reviews`);
+  if (!res.ok) throw new Error(`Could not load reviews (${res.status})`);
+  return res.json();
+}
+
+export async function createReview(
+  body: { rating: number; comment?: string; name?: string },
+  token: string,
+): Promise<Review> {
+  return postJson<Review>('/reviews', body, token);
 }
 
 export async function getLibrary(): Promise<LibraryItem[]> {

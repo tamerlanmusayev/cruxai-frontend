@@ -2,11 +2,13 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { uploadFiles } from '@/lib/api';
+import { createFromSources, uploadFiles } from '@/lib/api';
 import { ensureToken } from '@/lib/auth';
 import { getRecaptchaToken } from '@/lib/recaptcha';
 import { LANGS, Lang, useT } from '@/lib/i18n';
 import HowItWorksDemo from '@/components/HowItWorksDemo';
+import BookSearchModal from '@/components/BookSearchModal';
+import ReviewsSection from '@/components/ReviewsSection';
 
 const MAX_TOTAL_MB = 40;
 const MAX_FILES = 20;
@@ -29,6 +31,7 @@ export default function HomePage() {
   const [dragging, setDragging] = useState(false);
   const [askLang, setAskLang] = useState(false);
   const [modalLang, setModalLang] = useState<Lang>(lang);
+  const [showBooks, setShowBooks] = useState(false);
 
   useEffect(() => {
     if (!askLang) return;
@@ -73,6 +76,22 @@ export default function HomePage() {
     setFiles((prev) => prev.filter((_, i) => i !== idx));
   }
 
+  // Create a document from a remote source (picked book or pasted link).
+  async function startFromSources(source: { url: string; name: string }) {
+    setShowBooks(false);
+    setBusy(true);
+    setError(null);
+    try {
+      const authToken = await ensureToken();
+      const captcha = await getRecaptchaToken('upload');
+      const { id } = await createFromSources([source], authToken, lang, captcha);
+      router.push(`/doc/${id}`);
+    } catch (e) {
+      setError((e as Error).message);
+      setBusy(false);
+    }
+  }
+
   async function submitWith(notesLang: Lang) {
     if (!canStart) return;
     setAskLang(false);
@@ -114,6 +133,10 @@ export default function HomePage() {
         ))}
       </div>
 
+      <div className="mx-auto mt-4 inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-1.5 text-sm font-medium text-emerald-300">
+        🆓 {t('free.badge')}
+      </div>
+
       <HowItWorksDemo />
 
       <div
@@ -153,6 +176,28 @@ export default function HomePage() {
             </p>
           </>
         )}
+      </div>
+
+      <div className="mx-auto mt-4 flex max-w-xl items-center gap-3 text-sm text-slate-500">
+        <span className="h-px flex-1 bg-white/10" />
+        {t('home.or')}
+        <span className="h-px flex-1 bg-white/10" />
+      </div>
+      <div className="mt-4 flex flex-wrap justify-center gap-3">
+        <button
+          onClick={() => setShowBooks(true)}
+          disabled={busy}
+          className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-white/25 disabled:opacity-50"
+        >
+          📚 {t('books.search')}
+        </button>
+        <button
+          onClick={() => setShowBooks(true)}
+          disabled={busy}
+          className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-white/25 disabled:opacity-50"
+        >
+          🔗 {t('link.import')}
+        </button>
       </div>
 
       {files.length > 0 && (
@@ -227,6 +272,12 @@ export default function HomePage() {
           <li>{t('home.tips.4', { mb: MAX_TOTAL_MB })}</li>
         </ul>
       </div>
+
+      <ReviewsSection />
+
+      {showBooks && (
+        <BookSearchModal onClose={() => setShowBooks(false)} onUse={startFromSources} />
+      )}
 
       {/* language popup — shown right after files are added */}
       {askLang && (

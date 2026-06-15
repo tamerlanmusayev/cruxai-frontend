@@ -3,6 +3,7 @@ import { Inter, Caveat } from 'next/font/google';
 import './globals.css';
 import { LangProvider } from '@/lib/i18n';
 import { ThemeProvider, themeNoFlashScript } from '@/lib/theme';
+import { SocketProvider } from '@/lib/socket';
 import AppShell from '@/components/AppShell';
 import Analytics from '@/components/Analytics';
 
@@ -68,7 +69,9 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <LangProvider>
-            <AppShell>{children}</AppShell>
+            <SocketProvider>
+              <AppShell>{children}</AppShell>
+            </SocketProvider>
           </LangProvider>
         </ThemeProvider>
         <Analytics />

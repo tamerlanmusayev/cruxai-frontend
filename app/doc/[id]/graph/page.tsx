@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { Graph, GraphNode, getGraph } from '@/lib/api';
+import AiProgress from '@/components/AiProgress';
 import { useT } from '@/lib/i18n';
 
 const DIFF_COLOR: Record<string, string> = {
@@ -53,10 +54,7 @@ export default function GraphPage() {
       {error && <p className="mt-6 text-sm text-red-400">{error}</p>}
 
       {!graph && !error && (
-        <div className="mt-20 text-center">
-          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-white/10 border-t-brand" />
-          <p className="text-slate-400">{t('graph.building')}</p>
-        </div>
+        <AiProgress steps={[t('prog.read'), t('prog.map'), t('prog.almost')]} />
       )}
 
       {graph && layout && (

@@ -11,6 +11,7 @@ import {
   submitAttempt,
 } from '@/lib/api';
 import { ensureToken } from '@/lib/auth';
+import AiProgress from '@/components/AiProgress';
 import { useT } from '@/lib/i18n';
 
 export default function QuizPage() {
@@ -74,12 +75,7 @@ export default function QuizPage() {
   }
 
   if (loading) {
-    return (
-      <Centered>
-        <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-white/10 border-t-brand" />
-        <p className="text-slate-400">{t('quiz.writing')}</p>
-      </Centered>
-    );
+    return <AiProgress steps={[t('prog.read'), t('prog.quizgen'), t('prog.almost')]} />;
   }
 
   if (error && !quiz) {

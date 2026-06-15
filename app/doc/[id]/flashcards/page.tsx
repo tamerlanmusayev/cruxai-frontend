@@ -7,6 +7,7 @@ import { Flashcard, generateFlashcards, reviewFlashcard } from '@/lib/api';
 import { ensureToken } from '@/lib/auth';
 import { useT } from '@/lib/i18n';
 import FlashcardStudy from '@/components/FlashcardStudy';
+import AiProgress from '@/components/AiProgress';
 
 export default function FlashcardsPage() {
   const { t } = useT();
@@ -41,10 +42,7 @@ export default function FlashcardsPage() {
       {error && <p className="mt-6 text-sm text-red-400">{error}</p>}
 
       {!cards && !error && (
-        <div className="mt-20 text-center">
-          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-white/10 border-t-brand" />
-          <p className="text-slate-400">{t('fc.making')}</p>
-        </div>
+        <AiProgress steps={[t('prog.read'), t('prog.cards'), t('prog.almost')]} />
       )}
 
       {cards && <FlashcardStudy cards={cards} onGrade={handleGrade} />}

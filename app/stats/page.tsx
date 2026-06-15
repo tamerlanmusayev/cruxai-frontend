@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Stats, getStats } from '@/lib/api';
-import { usePresence } from '@/lib/usePresence';
+import { useOnline } from '@/lib/socket';
 import { useT } from '@/lib/i18n';
 
 function Spinner({ className = 'h-5 w-5' }: { className?: string }) {
@@ -18,7 +18,7 @@ export default function StatsPage() {
   const { t } = useT();
   const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const online = usePresence();
+  const online = useOnline();
 
   useEffect(() => {
     const load = () => getStats().then(setStats).catch((e) => setError((e as Error).message));
@@ -64,7 +64,7 @@ export default function StatsPage() {
             {stats.countries.map((c) => (
               <div key={c.code}>
                 <div className="mb-1 flex justify-between text-sm">
-                  <span className="text-slate-300">{c.name}</span>
+                  <span className="text-slate-300">{t(`country.${c.code}`, { defaultValue: c.name })}</span>
                   <span className="text-slate-400">{c.pct}%</span>
                 </div>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">

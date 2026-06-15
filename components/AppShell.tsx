@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { LANGS, useT } from '@/lib/i18n';
 import { useTheme } from '@/lib/theme';
-import { usePresence } from '@/lib/usePresence';
+import { useOnline } from '@/lib/socket';
 import DemoVideo from '@/components/DemoVideo';
 
 const GITHUB_URL =
@@ -15,7 +15,7 @@ const GITHUB_URL =
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { lang, setLang, t } = useT();
   const { theme, toggle } = useTheme();
-  const online = usePresence();
+  const online = useOnline();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const isActive = (href: string) =>
@@ -203,7 +203,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8 sm:px-5 sm:py-10">
+      <main
+        key={pathname}
+        className="page-enter mx-auto w-full max-w-4xl flex-1 px-4 py-8 sm:px-5 sm:py-10"
+      >
         {children}
       </main>
       <DemoVideo />

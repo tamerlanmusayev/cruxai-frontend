@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { LibraryItem, Synthesis, getLibrary, runSynthesis } from '@/lib/api';
 import { ensureToken } from '@/lib/auth';
+import AiProgress from '@/components/AiProgress';
 import { useT } from '@/lib/i18n';
 
 export default function SynthesisPage() {
@@ -81,6 +82,10 @@ export default function SynthesisPage() {
           {busy ? t('syn.working') : t('syn.run')}
         </button>
       </div>
+
+      {busy && !result && (
+        <AiProgress steps={[t('prog.collect'), t('prog.compare'), t('prog.synth'), t('prog.almost')]} />
+      )}
 
       {result && (
         <div className="mt-6 space-y-6">

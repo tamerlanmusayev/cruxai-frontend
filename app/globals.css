@@ -15,6 +15,17 @@
   0% { width: 0; }
   100% { width: 100%; }
 }
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* page content eases in on navigation */
+.page-enter { animation: fade-up 0.45s ease both; }
+
+/* gentle lift on interactive cards */
+.lift { transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease; }
+.lift:hover { transform: translateY(-2px); }
 
 :root {
   color-scheme: dark;

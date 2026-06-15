@@ -7,6 +7,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { DocumentDetail, getDocument, updateSummary } from '@/lib/api';
 import SummaryActions from '@/components/SummaryActions';
+import AiProgress from '@/components/AiProgress';
 import { useT } from '@/lib/i18n';
 
 export default function DocPage() {
@@ -77,7 +78,9 @@ export default function DocPage() {
 
   if (!doc || doc.status === 'PROCESSING' || doc.status === 'QUEUED') {
     return (
-      <Notice tone="info" title={t('doc.reading')} body={t('doc.readingBody')} spinner />
+      <AiProgress
+        steps={[t('prog.collect'), t('prog.read'), t('prog.summarize'), t('prog.almost')]}
+      />
     );
   }
 

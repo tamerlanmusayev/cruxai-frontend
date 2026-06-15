@@ -104,6 +104,70 @@ export class PagedResultDto<T = any> implements IPagedResult<T> {
 // customer definition
 // empty
 
+export class ReviewsService {
+  /**
+   *
+   */
+  static reviewsControllerList(options: IRequestOptions = {}): Promise<any> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + '/reviews';
+
+      const configs: IRequestConfig = getConfigs('get', 'application/json', url, options);
+
+      axios(configs, resolve, reject);
+    });
+  }
+  /**
+   *
+   */
+  static reviewsControllerCreate(
+    params: {
+      /** requestBody */
+      body?: CreateReviewDto;
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + '/reviews';
+
+      const configs: IRequestConfig = getConfigs('post', 'application/json', url, options);
+
+      let data = params.body;
+
+      configs.data = data;
+
+      axios(configs, resolve, reject);
+    });
+  }
+}
+
+export class BooksService {
+  /**
+   *
+   */
+  static booksControllerSearch(options: IRequestOptions = {}): Promise<any> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + '/books/search';
+
+      const configs: IRequestConfig = getConfigs('get', 'application/json', url, options);
+
+      axios(configs, resolve, reject);
+    });
+  }
+  /**
+   *
+   */
+  static booksControllerCount(options: IRequestOptions = {}): Promise<any> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + '/books/count';
+
+      const configs: IRequestConfig = getConfigs('get', 'application/json', url, options);
+
+      axios(configs, resolve, reject);
+    });
+  }
+}
+
 export class AuthService {
   /**
    *
@@ -518,6 +582,9 @@ export class StatsService {
     });
   }
 }
+
+/** CreateReviewDto */
+export interface CreateReviewDto {}
 
 /** RequestUploadsDto */
 export interface RequestUploadsDto {}
