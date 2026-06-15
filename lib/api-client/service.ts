@@ -163,6 +163,35 @@ export class DocumentsService {
       axios(configs, resolve, reject);
     });
   }
+  /**
+   *
+   */
+  static documentsControllerUpdateSummary(
+    params: {
+      /**  */
+      id: string;
+      /** requestBody */
+      body?: UpdateSummaryDto;
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + '/documents/{id}/summary';
+      url = url.replace('{id}', params['id'] + '');
+
+      const configs: IRequestConfig = getConfigs('patch', 'application/json', url, options);
+
+      /** 适配移动开发（iOS13 等版本），只有 POST、PUT 等请求允许带body */
+
+      console.warn('适配移动开发（iOS13 等版本），只有 POST、PUT 等请求允许带body');
+
+      let data = params.body;
+
+      configs.data = data;
+
+      axios(configs, resolve, reject);
+    });
+  }
 }
 
 export class QuizService {
@@ -457,6 +486,9 @@ export class StatsService {
     });
   }
 }
+
+/** UpdateSummaryDto */
+export interface UpdateSummaryDto {}
 
 /** SubmitAttemptDto */
 export interface SubmitAttemptDto {}

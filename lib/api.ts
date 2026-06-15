@@ -172,6 +172,14 @@ export async function getLibrary(): Promise<LibraryItem[]> {
   return DocumentsService.documentsControllerList();
 }
 
+/** Owner-only inline edit of the generated summary (no AI cost). */
+export async function updateSummary(
+  docId: string,
+  data: { contentMd?: string; keyPoints?: string[] },
+): Promise<DocumentDetail> {
+  return DocumentsService.documentsControllerUpdateSummary({ id: docId, body: data });
+}
+
 // ---------- quiz + attempts ----------
 
 export async function generateQuiz(docId: string): Promise<Quiz> {

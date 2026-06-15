@@ -174,7 +174,7 @@ export default function SummaryActions({
           style={{ width: 760, color: '#1a1a2e', background: '#ffffff' }}
           className="px-14 py-12"
         >
-          <h1 className="font-hand text-4xl text-brand">{title}</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">{title}</h1>
           {keyPoints.length > 0 && (
             <>
               <p className="mt-6 text-lg font-semibold">★ Key takeaways</p>

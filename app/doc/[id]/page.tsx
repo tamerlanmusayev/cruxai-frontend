@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { DocumentDetail, getDocument } from '@/lib/api';
+import { DocumentDetail, getDocument, updateSummary } from '@/lib/api';
 import SummaryActions from '@/components/SummaryActions';
 import { useT } from '@/lib/i18n';
 
@@ -14,6 +14,39 @@ export default function DocPage() {
   const { id } = useParams<{ id: string }>();
   const [doc, setDoc] = useState<DocumentDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // inline editing of the generated summary
+  const [editing, setEditing] = useState(false);
+  const [draftContent, setDraftContent] = useState('');
+  const [draftKeys, setDraftKeys] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [saveErr, setSaveErr] = useState<string | null>(null);
+
+  function startEdit() {
+    if (!doc?.summary) return;
+    setDraftContent(doc.summary.contentMd);
+    setDraftKeys(doc.summary.keyPoints.length ? doc.summary.keyPoints : ['']);
+    setSaveErr(null);
+    setEditing(true);
+  }
+
+  async function save() {
+    setSaving(true);
+    setSaveErr(null);
+    try {
+      const keyPoints = draftKeys.map((k) => k.trim()).filter(Boolean);
+      const updated = await updateSummary(id, {
+        contentMd: draftContent,
+        keyPoints,
+      });
+      setDoc(updated);
+      setEditing(false);
+    } catch (e) {
+      setSaveErr((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  }
 
   useEffect(() => {
     let active = true;
@@ -60,14 +93,50 @@ export default function DocPage() {
 
   return (
     <article>
-      <div className="mb-4 flex items-center justify-between">
-        <span className="font-hand text-2xl text-slate-400">{t('doc.notes')}</span>
-        {doc.language && (
-          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-wide text-slate-300">
-            {doc.language}
-          </span>
-        )}
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <span className="text-sm font-medium uppercase tracking-wide text-slate-400">
+          {t('doc.notes')}
+        </span>
+        <div className="flex items-center gap-2">
+          {doc.language && (
+            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-wide text-slate-300">
+              {doc.language}
+            </span>
+          )}
+          {doc.summary && !editing && (
+            <button
+              onClick={startEdit}
+              className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-medium text-slate-200 hover:border-white/25"
+            >
+              {t('doc.edit')}
+            </button>
+          )}
+          {editing && (
+            <>
+              <button
+                onClick={() => setEditing(false)}
+                disabled={saving}
+                className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-medium text-slate-300 hover:border-white/25 disabled:opacity-50"
+              >
+                {t('doc.cancel')}
+              </button>
+              <button
+                onClick={save}
+                disabled={saving}
+                className="btn-glow rounded-lg px-4 py-1.5 text-sm font-medium disabled:opacity-50"
+              >
+                {saving ? t('doc.saving') : t('doc.save')}
+              </button>
+            </>
+          )}
+        </div>
       </div>
+
+      {saveErr && (
+        <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">
+          {saveErr}
+        </div>
+      )}
 
       {doc.skipped?.length ? (
         <div className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200">
@@ -82,48 +151,95 @@ export default function DocPage() {
         </div>
       ) : null}
 
-      <div className="notebook">
-        <h1 className="font-hand text-4xl text-brand">{doc.title}</h1>
+      <div className="reader">
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">{doc.title}</h1>
 
-        {doc.summary?.keyPoints?.length ? (
-          <section className="mb-6 mt-4">
-            <p className="font-hand text-2xl text-red-700">{t('doc.key')}</p>
-            <ul className="mt-2 space-y-2">
-              {doc.summary.keyPoints.map((k, i) => (
-                <li key={i} className="flex gap-2">
-                  <span aria-hidden>✏️</span>
-                  <span className="marker">{k}</span>
-                </li>
+        {editing ? (
+          <section className="mt-6">
+            <p className="mb-2 text-sm font-semibold text-slate-500">{t('doc.key')}</p>
+            <div className="space-y-2">
+              {draftKeys.map((k, i) => (
+                <div key={i} className="flex gap-2">
+                  <input
+                    value={k}
+                    onChange={(e) =>
+                      setDraftKeys((p) => p.map((x, j) => (j === i ? e.target.value : x)))
+                    }
+                    className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-[15px] text-slate-900 outline-none focus:border-brand"
+                  />
+                  <button
+                    onClick={() => setDraftKeys((p) => p.filter((_, j) => j !== i))}
+                    className="rounded-lg border border-slate-300 px-3 text-slate-500 hover:bg-slate-100"
+                    aria-label="remove"
+                  >
+                    ✕
+                  </button>
+                </div>
               ))}
-            </ul>
-          </section>
-        ) : null}
+            </div>
+            <button
+              onClick={() => setDraftKeys((p) => [...p, ''])}
+              className="mt-2 text-sm font-medium text-brand hover:underline"
+            >
+              + {t('doc.addPoint')}
+            </button>
 
-        <section className="prose-note">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {doc.summary?.contentMd ?? ''}
-          </ReactMarkdown>
-        </section>
-
-        {doc.summary?.citations?.length ? (
-          <section className="mt-8 border-t border-slate-300 pt-4">
-            <p className="font-hand text-2xl text-slate-600">{t('doc.sources')}</p>
-            <ol className="mt-2 space-y-1.5 text-sm text-slate-600">
-              {doc.summary.citations.map((c) => (
-                <li key={c.n} className="flex gap-2">
-                  <span className="font-semibold text-brand">[{c.n}]</span>
-                  <span>
-                    {c.section ? <strong className="text-slate-700">{c.section}: </strong> : null}
-                    <span className="italic">“{c.quote}”</span>
-                  </span>
-                </li>
-              ))}
-            </ol>
+            <p className="mb-2 mt-6 text-sm font-semibold text-slate-500">{t('doc.notes')}</p>
+            <textarea
+              value={draftContent}
+              onChange={(e) => setDraftContent(e.target.value)}
+              rows={24}
+              className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 font-mono text-sm leading-relaxed text-slate-900 outline-none focus:border-brand"
+            />
+            <p className="mt-1 text-xs text-slate-400">{t('doc.mdHint')}</p>
           </section>
-        ) : null}
+        ) : (
+          <>
+            {doc.summary?.keyPoints?.length ? (
+              <section className="takeaways mt-6">
+                <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-indigo-600">
+                  {t('doc.key')}
+                </p>
+                <ul className="space-y-1.5 text-[15px] text-slate-700">
+                  {doc.summary.keyPoints.map((k, i) => (
+                    <li key={i} className="flex gap-2">
+                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500" />
+                      <span>{k}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
+
+            <section className="prose-note mt-6">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {doc.summary?.contentMd ?? ''}
+              </ReactMarkdown>
+            </section>
+
+            {doc.summary?.citations?.length ? (
+              <section className="mt-8 border-t border-slate-200 pt-4">
+                <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+                  {t('doc.sources')}
+                </p>
+                <ol className="mt-2 space-y-1.5 text-sm text-slate-500">
+                  {doc.summary.citations.map((c) => (
+                    <li key={c.n} className="flex gap-2">
+                      <span className="font-semibold text-brand">[{c.n}]</span>
+                      <span>
+                        {c.section ? <strong className="text-slate-700">{c.section}: </strong> : null}
+                        <span className="italic">“{c.quote}”</span>
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            ) : null}
+          </>
+        )}
       </div>
 
-      {doc.summary && (
+      {doc.summary && !editing && (
         <SummaryActions
           documentId={doc.id}
           title={doc.title}
