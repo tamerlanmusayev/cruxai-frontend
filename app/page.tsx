@@ -6,6 +6,7 @@ import { uploadFiles } from '@/lib/api';
 import { ensureToken } from '@/lib/auth';
 import { getRecaptchaToken } from '@/lib/recaptcha';
 import { LANGS, Lang, useT } from '@/lib/i18n';
+import HowItWorksDemo from '@/components/HowItWorksDemo';
 
 const MAX_TOTAL_MB = 40;
 const MAX_FILES = 20;
@@ -112,6 +113,8 @@ export default function HomePage() {
           </span>
         ))}
       </div>
+
+      <HowItWorksDemo />
 
       <div
         onDragOver={(e) => {

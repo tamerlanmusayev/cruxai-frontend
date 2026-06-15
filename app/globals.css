@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* animated "how it works" demo */
+@keyframes hiw-scan {
+  0% { transform: translateY(0); opacity: 0.9; }
+  100% { transform: translateY(86px); opacity: 0.3; }
+}
+@keyframes hiw-rise {
+  0% { transform: translateY(14px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes hiw-fill {
+  0% { width: 0; }
+  100% { width: 100%; }
+}
+
 :root {
   color-scheme: dark;
   --bg: #08080f;
