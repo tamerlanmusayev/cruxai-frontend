@@ -67,7 +67,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   // Shared sidebar body (logo → CTA → nav → Stats → footer).
   const SidebarBody = (
-    <div className="flex h-full flex-col">
+    <div className="flex min-h-full flex-col">
       <Link href="/" className="flex items-center gap-2 px-3 text-xl font-bold">
         <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-indigo-500 to-fuchsia-500 text-sm shadow-glow">
           ✦
@@ -223,7 +223,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen md:pl-64">
       {/* desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-[var(--border)] bg-[var(--bg)]/80 px-3 py-6 backdrop-blur-xl md:block">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 overflow-y-auto border-r border-[var(--border)] bg-[var(--bg)]/80 px-3 py-6 backdrop-blur-xl md:block">
         {SidebarBody}
       </aside>
 
@@ -248,7 +248,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {open && (
         <div className="fixed inset-0 z-40 md:hidden">
           <div className="absolute inset-0 bg-black/60" onClick={() => setOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 w-72 max-w-[85%] border-r border-[var(--border)] bg-[var(--bg)] px-3 py-6">
+          <aside className="absolute inset-y-0 left-0 w-72 max-w-[85%] overflow-y-auto border-r border-[var(--border)] bg-[var(--bg)] px-3 py-6">
             {SidebarBody}
           </aside>
         </div>

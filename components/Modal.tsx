@@ -37,11 +37,11 @@ export default function Modal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-sm animate-[fade-in_0.2s_ease] sm:items-center sm:p-8"
+      className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-sm animate-[fade-in_0.2s_ease]"
       onClick={onClose}
     >
       <div
-        className={`glass relative my-auto w-full p-6 shadow-2xl animate-[hiw-rise_0.25s_ease-out] ${className}`}
+        className={`glass relative mt-[6vh] mb-10 w-full p-6 shadow-2xl animate-[hiw-rise_0.25s_ease-out] ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
         {!hideClose && (
