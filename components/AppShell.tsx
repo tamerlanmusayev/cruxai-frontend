@@ -31,7 +31,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   ];
 
   const LangSwitcher = (
-    <div className="flex overflow-hidden rounded-lg border border-white/10">
+    <div className="inline-flex w-fit overflow-hidden rounded-lg border border-white/10">
       {LANGS.map((l) => (
         <button
           key={l.code}
