@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { toPng, toCanvas } from 'html-to-image';
+import { toCanvas } from 'html-to-image';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { jsPDF } from 'jspdf';
@@ -30,9 +30,7 @@ export default function SummaryActions({
 }: Props) {
   const { t } = useT();
   const [speaking, setSpeaking] = useState(false);
-  const [cardBusy, setCardBusy] = useState(false);
   const [pdfBusy, setPdfBusy] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
   const notesRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -91,9 +89,10 @@ export default function SummaryActions({
     browserSpeak();
   }
 
-  // Render the notes node to a canvas, then slice it across A4 pages.
-  // We rasterize the browser-rendered DOM so Cyrillic / Azerbaijani glyphs
-  // survive — jsPDF's built-in fonts only cover Latin-1.
+  // Rasterize the browser-rendered notes (so Cyrillic/Azerbaijani survive —
+  // jsPDF's built-in fonts are Latin-1 only), then slice it across A4 pages
+  // WITH margins and page numbers, cropping each page so nothing is cut flush
+  // to the edge.
   async function downloadNotes() {
     if (!notesRef.current || pdfBusy) return;
     setPdfBusy(true);
@@ -106,39 +105,42 @@ export default function SummaryActions({
       const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
       const pw = pdf.internal.pageSize.getWidth();
       const ph = pdf.internal.pageSize.getHeight();
-      const imgW = pw;
-      const imgH = (canvas.height * pw) / canvas.width;
-      const img = canvas.toDataURL('image/png');
-      let heightLeft = imgH;
-      let position = 0;
-      pdf.addImage(img, 'PNG', 0, position, imgW, imgH);
-      heightLeft -= ph;
-      while (heightLeft > 0) {
-        position -= ph;
-        pdf.addPage();
-        pdf.addImage(img, 'PNG', 0, position, imgW, imgH);
-        heightLeft -= ph;
+      const margin = 40;
+      const footer = 24; // space reserved for the page number
+      const contentW = pw - margin * 2;
+      const contentH = ph - margin * 2 - footer;
+      const pxPerPt = canvas.width / contentW; // device px per PDF point
+      const sliceHpx = Math.floor(contentH * pxPerPt);
+      const pages = Math.max(1, Math.ceil(canvas.height / sliceHpx));
+
+      const slice = document.createElement('canvas');
+      const ctx = slice.getContext('2d')!;
+
+      for (let p = 0; p < pages; p++) {
+        const sy = p * sliceHpx;
+        const hpx = Math.min(sliceHpx, canvas.height - sy);
+        slice.width = canvas.width;
+        slice.height = hpx;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, slice.width, slice.height);
+        ctx.drawImage(canvas, 0, sy, canvas.width, hpx, 0, 0, canvas.width, hpx);
+
+        if (p > 0) pdf.addPage();
+        pdf.addImage(
+          slice.toDataURL('image/png'),
+          'PNG',
+          margin,
+          margin,
+          contentW,
+          hpx / pxPerPt,
+        );
+        pdf.setFontSize(9);
+        pdf.setTextColor(150);
+        pdf.text(`${p + 1} / ${pages}`, pw / 2, ph - margin / 2, { align: 'center' });
       }
       pdf.save(`${safeName(title)}.pdf`);
     } finally {
       setPdfBusy(false);
-    }
-  }
-
-  async function downloadCard() {
-    if (!cardRef.current) return;
-    setCardBusy(true);
-    try {
-      const dataUrl = await toPng(cardRef.current, {
-        pixelRatio: 2,
-        cacheBust: true,
-      });
-      const a = document.createElement('a');
-      a.href = dataUrl;
-      a.download = `${safeName(title)}-card.png`;
-      a.click();
-    } finally {
-      setCardBusy(false);
     }
   }
 
@@ -157,13 +159,6 @@ export default function SummaryActions({
           className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 hover:border-white/25 disabled:opacity-50"
         >
           {pdfBusy ? '…' : t('doc.downloadNotes')}
-        </button>
-        <button
-          onClick={downloadCard}
-          disabled={cardBusy}
-          className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 hover:border-white/25 disabled:opacity-50"
-        >
-          {cardBusy ? '…' : t('doc.downloadCard')}
         </button>
       </div>
 
@@ -189,32 +184,6 @@ export default function SummaryActions({
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{contentMd}</ReactMarkdown>
           </div>
           <p className="mt-10 text-xs text-slate-400">made with CruxAI · cruxai.az</p>
-        </div>
-      </div>
-
-      {/* Off-screen shareable card captured to PNG */}
-      <div className="pointer-events-none fixed -left-[9999px] top-0">
-        <div
-          ref={cardRef}
-          style={{ width: 1080, height: 1080 }}
-          className="flex flex-col justify-between bg-[#fffdf5] p-16"
-        >
-          <div>
-            <p className="font-hand text-5xl text-brand">{title}</p>
-            <p className="mt-2 text-2xl text-slate-400">★ Key takeaways</p>
-            <ul className="mt-6 space-y-4">
-              {keyPoints.slice(0, 5).map((k, i) => (
-                <li key={i} className="flex gap-3 text-3xl leading-snug text-ink">
-                  <span>✏️</span>
-                  <span>{k}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="flex items-center justify-between text-2xl text-slate-400">
-            <span className="font-hand text-4xl text-brand">CruxAI</span>
-            <span>made with AI · cruxai</span>
-          </div>
         </div>
       </div>
     </>

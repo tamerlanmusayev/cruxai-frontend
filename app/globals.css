@@ -46,6 +46,24 @@ body {
   background-attachment: fixed;
 }
 
+/* ---------- light-theme retint of dark-only utilities ----------
+   The UI was authored dark-first with hardcoded utilities. Rather than
+   prefixing every component, retint the common ones for readable contrast
+   on light. Higher specificity (html.light .x) wins over the base utility. */
+html.light .text-ink { color: #1c2030; }
+html.light .text-white { color: #1c2030; }
+html.light .text-slate-200 { color: #1f2937; }
+html.light .text-slate-300 { color: #334155; }
+html.light .text-slate-400 { color: #51607a; }
+html.light .text-slate-500 { color: #64748b; }
+html.light .bg-base { background-color: var(--bg); }
+html.light .bg-white\/5 { background-color: rgba(15, 23, 42, 0.04); }
+html.light .bg-white\/\[0\.03\] { background-color: rgba(15, 23, 42, 0.03); }
+html.light .bg-white\/10 { background-color: rgba(15, 23, 42, 0.07); }
+html.light .border-white\/10 { border-color: rgba(15, 23, 42, 0.12); }
+html.light .border-white\/25 { border-color: rgba(15, 23, 42, 0.22); }
+html.light .glass { box-shadow: 0 8px 30px -16px rgba(15, 23, 42, 0.25); }
+
 /* ---------- reusable glass primitives (theme-aware) ---------- */
 .glass {
   background: var(--surface);

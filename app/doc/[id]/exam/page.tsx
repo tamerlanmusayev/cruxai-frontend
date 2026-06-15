@@ -14,6 +14,7 @@ export default function ExamPage() {
   const [answers, setAnswers] = useState<number[]>([]);
   const [left, setLeft] = useState(0);
   const [result, setResult] = useState<ExamResult | null>(null);
+  const [timedOut, setTimedOut] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -49,6 +50,7 @@ export default function ExamPage() {
   async function newExam() {
     setError(null);
     setResult(null);
+    setTimedOut(false);
     setExam(null);
     try {
       await ensureToken();
@@ -61,10 +63,11 @@ export default function ExamPage() {
     }
   }
 
-  // countdown
+  // countdown — when it hits zero we auto-submit (unanswered count as wrong)
   useEffect(() => {
     if (!exam || result) return;
     if (left <= 0) {
+      setTimedOut(true);
       submit();
       return;
     }
@@ -97,10 +100,14 @@ export default function ExamPage() {
 
   return (
     <div>
-      <div className="sticky top-16 z-10 mb-4 flex items-center justify-between rounded-xl border border-white/10 bg-base/80 px-4 py-2 backdrop-blur">
+      <div className="sticky top-0 z-20 mb-5 flex items-center justify-between gap-3 rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 shadow-lg">
         <h1 className="text-xl font-bold">{t('exam.title')}</h1>
         {!result && (
-          <span className={`font-mono text-lg ${left < 60 ? 'text-red-400' : 'text-slate-300'}`}>
+          <span
+            className={`rounded-lg px-3 py-1 font-mono text-lg tabular-nums ${
+              left < 60 ? 'bg-red-500/15 text-red-400' : 'bg-[var(--surface-2)]'
+            }`}
+          >
             ⏱ {mm}:{ss}
           </span>
         )}
@@ -108,6 +115,11 @@ export default function ExamPage() {
 
       {result && (
         <div className="glass mb-6 p-6 text-center">
+          {timedOut && (
+            <p className="mb-3 inline-block rounded-lg bg-amber-500/15 px-3 py-1 text-sm font-medium text-amber-400">
+              ⏰ {t('exam.timeUp')}
+            </p>
+          )}
           <p className="text-4xl font-extrabold grad-text">{result.predicted}%</p>
           <p className="mt-1 text-slate-400">
             {result.score} / {result.total}

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { DayCount, Stats, getStats } from '@/lib/api';
+import { Stats, getStats } from '@/lib/api';
 import { usePresence } from '@/lib/usePresence';
 import { useT } from '@/lib/i18n';
 
@@ -57,19 +57,6 @@ export default function StatsPage() {
         <Stat label={t('stats.attempts')} value={stats?.attempts} />
       </div>
 
-      <Chart
-        title={t('stats.daily')}
-        data={stats?.daily}
-        loading={!stats}
-        fmt={(d) => d.slice(5)}
-      />
-      <Chart
-        title={t('stats.monthly')}
-        data={stats?.monthly}
-        loading={!stats}
-        fmt={(d) => d}
-      />
-
       {stats?.countries?.length ? (
         <div className="glass mt-8 p-5 text-left">
           <p className="mb-4 text-sm font-medium text-slate-300">{t('stats.countries')}</p>
@@ -110,39 +97,3 @@ function Stat({ label, value }: { label: string; value?: number }) {
   );
 }
 
-function Chart({
-  title,
-  data,
-  loading,
-  fmt,
-}: {
-  title: string;
-  data?: DayCount[];
-  loading?: boolean;
-  fmt: (day: string) => string;
-}) {
-  const max = data?.length ? Math.max(1, ...data.map((d) => d.count)) : 1;
-  return (
-    <div className="glass mt-8 p-5">
-      <p className="mb-4 text-left text-sm font-medium text-slate-300">{title}</p>
-      <div className="flex h-40 items-end gap-2">
-        {loading || !data ? (
-          <div className="flex h-full w-full items-center justify-center">
-            <Spinner className="h-7 w-7" />
-          </div>
-        ) : (
-          data.map((d) => (
-            <div key={d.day} className="flex flex-1 flex-col items-center gap-1">
-              <div
-                className="w-full rounded-t bg-gradient-to-t from-indigo-500 to-fuchsia-500"
-                style={{ height: `${(d.count / max) * 100}%`, minHeight: 2 }}
-                title={`${d.day}: ${d.count}`}
-              />
-              <span className="text-[10px] text-slate-500">{fmt(d.day)}</span>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  );
-}
