@@ -167,7 +167,7 @@
   "lib.deleteBody": "“{title}” va undan yaratilgan hamma narsa (test, kartalar, progress) butunlay o‘chiriladi.",
   "lib.more": "Ko‘proq ko‘rsatish",
   "common.cancel": "Bekor qilish",
-  "usage.label": "Bugun qolgan generatsiyalar",
+  "usage.label": "Bugun qolgan AI tokenlari",
   "auth.signIn": "Kirish",
   "auth.signOut": "Chiqish",
   "auth.title": "Davom etish uchun kiring",

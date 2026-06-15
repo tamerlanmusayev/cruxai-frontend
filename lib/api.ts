@@ -329,9 +329,11 @@ export interface UsageStatus {
   used: number;
   limit: number;
   remaining: number;
+  /** Estimated token cost of one full single-document flow. */
+  fullFlow: number;
 }
 
-/** Today's remaining generation quota for the current user. */
+/** Today's remaining AI-token budget for the current user. */
 export async function getUsage(): Promise<UsageStatus> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('cruxai_token') : null;
   const res = await fetch(`${API_URL}/usage`, {

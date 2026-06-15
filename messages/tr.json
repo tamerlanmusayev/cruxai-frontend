@@ -167,7 +167,7 @@
   "lib.deleteBody": "“{title}” ve ondan üretilen her şey (test, kartlar, ilerleme) kalıcı olarak silinecek.",
   "lib.more": "Daha fazla göster",
   "common.cancel": "İptal",
-  "usage.label": "Bugün kalan üretim",
+  "usage.label": "Bugün kalan AI tokenleri",
   "auth.signIn": "Giriş yap",
   "auth.signOut": "Çıkış",
   "auth.title": "Devam etmek için giriş yap",

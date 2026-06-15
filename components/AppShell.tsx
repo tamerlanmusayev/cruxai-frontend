@@ -18,6 +18,11 @@ const GITHUB_URL =
 const DONATE_URL =
   process.env.NEXT_PUBLIC_DONATE_URL ?? 'https://www.buymeacoffee.com/tamerlanmusayev';
 
+/** Compact token count: 192000 → "192k". */
+function fmtTokens(n: number): string {
+  return n >= 1000 ? `${Math.round(n / 1000)}k` : String(n);
+}
+
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { lang, setLang, t } = useT();
   const { theme, toggle } = useTheme();
@@ -147,10 +152,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <span className="text-[var(--text-muted)]">{t('usage.label')}</span>
             <span
               className={`font-semibold tabular-nums ${
-                usage.remaining <= 3 ? 'text-amber-400' : 'text-[var(--text)]'
+                usage.remaining < usage.fullFlow ? 'text-amber-400' : 'text-[var(--text)]'
               }`}
             >
-              {usage.remaining}/{usage.limit}
+              {fmtTokens(usage.remaining)} / {fmtTokens(usage.limit)}
             </span>
           </div>
           <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-[var(--surface-2)]">

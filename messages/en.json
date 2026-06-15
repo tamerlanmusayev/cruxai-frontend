@@ -176,7 +176,7 @@
   "lib.deleteTitle": "Delete this note?",
   "lib.deleteBody": "“{title}” and everything generated from it (quiz, flashcards, progress) will be permanently removed. This can’t be undone.",
   "common.cancel": "Cancel",
-  "usage.label": "Generations left today",
+  "usage.label": "AI tokens left today",
   "auth.signIn": "Sign in",
   "auth.signOut": "Sign out",
   "auth.title": "Sign in to continue",
