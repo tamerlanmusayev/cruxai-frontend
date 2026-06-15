@@ -123,11 +123,43 @@ export class DocumentsService {
   /**
    *
    */
-  static documentsControllerUpload(options: IRequestOptions = {}): Promise<any> {
+  static documentsControllerRequestUploads(
+    params: {
+      /** requestBody */
+      body?: RequestUploadsDto;
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + '/documents/uploads';
+
+      const configs: IRequestConfig = getConfigs('post', 'application/json', url, options);
+
+      let data = params.body;
+
+      configs.data = data;
+
+      axios(configs, resolve, reject);
+    });
+  }
+  /**
+   *
+   */
+  static documentsControllerCreate(
+    params: {
+      /** requestBody */
+      body?: CreateDocumentDto;
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<any> {
     return new Promise((resolve, reject) => {
       let url = basePath + '/documents';
 
       const configs: IRequestConfig = getConfigs('post', 'application/json', url, options);
+
+      let data = params.body;
+
+      configs.data = data;
 
       axios(configs, resolve, reject);
     });
@@ -486,6 +518,12 @@ export class StatsService {
     });
   }
 }
+
+/** RequestUploadsDto */
+export interface RequestUploadsDto {}
+
+/** CreateDocumentDto */
+export interface CreateDocumentDto {}
 
 /** UpdateSummaryDto */
 export interface UpdateSummaryDto {}

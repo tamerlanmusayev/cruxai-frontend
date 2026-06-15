@@ -57,7 +57,7 @@ export default function DocPage() {
         const d = await getDocument(id);
         if (!active) return;
         setDoc(d);
-        if (d.status === 'PROCESSING') {
+        if (d.status === 'PROCESSING' || d.status === 'QUEUED') {
           timer = setTimeout(poll, 2500);
         }
       } catch (e) {
@@ -75,7 +75,7 @@ export default function DocPage() {
     return <Notice tone="error" title="Something went wrong" body={error} />;
   }
 
-  if (!doc || doc.status === 'PROCESSING') {
+  if (!doc || doc.status === 'PROCESSING' || doc.status === 'QUEUED') {
     return (
       <Notice tone="info" title={t('doc.reading')} body={t('doc.readingBody')} spinner />
     );

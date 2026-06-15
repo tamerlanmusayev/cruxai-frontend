@@ -17,7 +17,7 @@ import {
 export const API_URL =
   process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
-export type DocStatus = 'PROCESSING' | 'READY' | 'FAILED';
+export type DocStatus = 'QUEUED' | 'PROCESSING' | 'READY' | 'FAILED';
 
 export interface DocumentDetail {
   id: string;
@@ -137,9 +137,40 @@ export interface Synthesis {
 
 // ---------- documents ----------
 
+interface PresignedUpload {
+  name: string;
+  key: string;
+  url: string;
+}
+
+async function postJson<T>(
+  path: string,
+  body: unknown,
+  token: string,
+  recaptchaToken?: string,
+): Promise<T> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+  };
+  if (recaptchaToken) headers['x-recaptcha-token'] = recaptchaToken;
+  const res = await fetch(`${API_URL}${path}`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error((data as { message?: string }).message ?? `Request failed (${res.status})`);
+  }
+  return res.json();
+}
+
 /**
- * Multipart upload stays a hand-written fetch — the generated client doesn't
- * model FormData bodies or the reCAPTCHA header. Auth is passed explicitly here.
+ * Three-step upload: (1) ask the API for presigned PUT URLs, (2) upload each
+ * file straight to object storage, (3) create the document from the keys.
+ * Processing then runs in a background queue (client polls GET /documents/:id).
+ * Stays a hand-written fetch — it needs the storage PUT and the reCAPTCHA header.
  */
 export async function uploadFiles(
   files: File[],
@@ -147,21 +178,33 @@ export async function uploadFiles(
   lang?: string,
   recaptchaToken?: string,
 ): Promise<{ id: string }> {
-  const form = new FormData();
-  for (const f of files) form.append('files', f);
-  if (lang) form.append('lang', lang);
-  const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
-  if (recaptchaToken) headers['x-recaptcha-token'] = recaptchaToken;
-  const res = await fetch(`${API_URL}/documents`, {
-    method: 'POST',
-    headers,
-    body: form,
-  });
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error((body as { message?: string }).message ?? `Upload failed (${res.status})`);
-  }
-  return res.json();
+  // 1. presign
+  const { uploads } = await postJson<{ uploads: PresignedUpload[] }>(
+    '/documents/uploads',
+    { files: files.map((f) => ({ name: f.name, type: f.type, size: f.size })) },
+    token,
+    recaptchaToken,
+  );
+
+  // 2. upload bytes directly to storage (order matches the request)
+  await Promise.all(
+    uploads.map(async (u, i) => {
+      const res = await fetch(u.url, {
+        method: 'PUT',
+        headers: { 'Content-Type': files[i].type || 'application/octet-stream' },
+        body: files[i],
+      });
+      if (!res.ok) throw new Error(`Upload of "${u.name}" failed (${res.status})`);
+    }),
+  );
+
+  // 3. create the document; processing is queued server-side
+  return postJson<{ id: string }>(
+    '/documents',
+    { sources: uploads.map((u) => ({ key: u.key, name: u.name })), lang },
+    token,
+    recaptchaToken,
+  );
 }
 
 export async function getDocument(id: string): Promise<DocumentDetail> {
