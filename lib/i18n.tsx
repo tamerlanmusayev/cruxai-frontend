@@ -6,12 +6,20 @@ import { initReactI18next, useTranslation } from 'react-i18next';
 import en from '@/messages/en.json';
 import ru from '@/messages/ru.json';
 import az from '@/messages/az.json';
+import tr from '@/messages/tr.json';
+import kk from '@/messages/kk.json';
+import uz from '@/messages/uz.json';
+import ka from '@/messages/ka.json';
 
-export type Lang = 'az' | 'ru' | 'en';
+export type Lang = 'az' | 'ru' | 'en' | 'tr' | 'kk' | 'uz' | 'ka';
 export const LANGS: { code: Lang; label: string }[] = [
   { code: 'az', label: 'AZ' },
   { code: 'ru', label: 'RU' },
   { code: 'en', label: 'EN' },
+  { code: 'tr', label: 'TR' },
+  { code: 'kk', label: 'KZ' },
+  { code: 'uz', label: 'UZ' },
+  { code: 'ka', label: 'GE' },
 ];
 
 if (!i18next.isInitialized) {
@@ -20,6 +28,10 @@ if (!i18next.isInitialized) {
       en: { translation: en },
       ru: { translation: ru },
       az: { translation: az },
+      tr: { translation: tr },
+      kk: { translation: kk },
+      uz: { translation: uz },
+      ka: { translation: ka },
     },
     lng: 'en',
     fallbackLng: 'en',

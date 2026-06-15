@@ -23,6 +23,8 @@ export function speechLang(code: string | null): string {
       return 'tr-TR';
     case 'kk':
       return 'kk-KZ';
+    case 'uz':
+      return 'uz-UZ';
     case 'ka':
       return 'ka-GE';
     default:

@@ -57,24 +57,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         : 'text-[var(--text-muted)] hover:bg-[var(--surface)] hover:text-[var(--text)]'
     }`;
 
-  const LangSwitcher = (
-    <div className="inline-flex w-fit overflow-hidden rounded-lg border border-[var(--border)]">
-      {LANGS.map((l) => (
-        <button
-          key={l.code}
-          onClick={() => setLang(l.code)}
-          className={`px-2.5 py-1 text-xs font-medium transition ${
-            lang === l.code
-              ? 'bg-gradient-to-br from-indigo-500 to-fuchsia-500 text-white'
-              : 'text-[var(--text-muted)] hover:text-[var(--text)]'
-          }`}
-        >
-          {l.label}
-        </button>
-      ))}
-    </div>
-  );
-
   // Shared sidebar body (logo → CTA → nav → Stats → footer).
   const SidebarBody = (
     <div className="flex h-full flex-col">
@@ -128,7 +110,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       <div className="space-y-2.5 border-t border-[var(--border)] pt-4">
         {/* language segmented control */}
-        <div className="grid grid-cols-3 gap-1 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-1">
+        <div className="grid grid-cols-4 gap-1 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-1">
           {LANGS.map((l) => (
             <button
               key={l.code}
@@ -199,16 +181,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </span>
           <span className="grad-text">CruxAI</span>
         </Link>
-        <div className="flex items-center gap-2">
-          {LangSwitcher}
-          <button
-            onClick={() => setOpen((o) => !o)}
-            aria-label="Menu"
-            className="grid h-9 w-9 place-items-center rounded-lg border border-[var(--border)] text-[var(--text-muted)]"
-          >
-            {open ? '✕' : '☰'}
-          </button>
-        </div>
+        <button
+          onClick={() => setOpen((o) => !o)}
+          aria-label="Menu"
+          className="grid h-9 w-9 place-items-center rounded-lg border border-[var(--border)] text-[var(--text-muted)]"
+        >
+          {open ? '✕' : '☰'}
+        </button>
       </header>
 
       {/* mobile drawer */}
