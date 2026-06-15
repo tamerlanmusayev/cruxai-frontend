@@ -1,28 +1,35 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { BookHit, getBooksCount, searchBooks } from '@/lib/api';
+import { BookHit, BookRecommendation, getBooksCount, recommendBooks, searchBooks } from '@/lib/api';
 import Modal from '@/components/Modal';
 import { useT } from '@/lib/i18n';
+
+type Tab = 'books' | 'link' | 'ai';
 
 interface Props {
   onClose: () => void;
   onUse: (source: { url: string; name: string }) => void;
-  initialTab?: 'books' | 'link';
+  initialTab?: Tab;
 }
 
 const DEBOUNCE_MS = 500;
 const MIN_QUERY = 2;
 
 export default function BookSearchModal({ onClose, onUse, initialTab = 'books' }: Props) {
-  const { t } = useT();
-  const [tab, setTab] = useState<'books' | 'link'>(initialTab);
+  const { t, lang } = useT();
+  const [tab, setTab] = useState<Tab>(initialTab);
   const [q, setQ] = useState('');
   const [hits, setHits] = useState<BookHit[]>([]);
   const [searching, setSearching] = useState(false);
   const [searched, setSearched] = useState(false);
   const [count, setCount] = useState(0);
   const [link, setLink] = useState('');
+
+  // AI recommend
+  const [topic, setTopic] = useState('');
+  const [recs, setRecs] = useState<BookRecommendation[] | null>(null);
+  const [recBusy, setRecBusy] = useState(false);
 
   useEffect(() => {
     getBooksCount().then(setCount).catch(() => {});
@@ -46,8 +53,7 @@ export default function BookSearchModal({ onClose, onUse, initialTab = 'books' }
     }
   }, []);
 
-  // Lazy search: fire only after the user pauses typing; each keystroke
-  // resets the timer, so it never fires mid-typing.
+  // Lazy search: fire only after the user pauses typing.
   useEffect(() => {
     if (tab !== 'books') return;
     const id = setTimeout(() => doSearch(q), DEBOUNCE_MS);
@@ -61,92 +67,167 @@ export default function BookSearchModal({ onClose, onUse, initialTab = 'books' }
     onUse({ url, name });
   }
 
+  async function doRecommend() {
+    if (topic.trim().length < 3 || recBusy) return;
+    setRecBusy(true);
+    try {
+      setRecs(await recommendBooks(topic.trim(), lang));
+    } catch {
+      setRecs([]);
+    } finally {
+      setRecBusy(false);
+    }
+  }
+
+  const tabs: { key: Tab; label: string }[] = [
+    { key: 'books', label: `📚 ${t('books.search')}` },
+    { key: 'ai', label: `✨ ${t('rec.tab')}` },
+    { key: 'link', label: `🔗 ${t('link.import')}` },
+  ];
+
   return (
     <Modal onClose={onClose} className="max-w-2xl">
-      {/* tabs */}
-        <div className="mb-4 inline-flex rounded-xl border border-[var(--border)] p-1 text-sm">
+      <div className="mb-4 inline-flex rounded-xl border border-[var(--border)] p-1 text-sm">
+        {tabs.map((tb) => (
           <button
-            onClick={() => setTab('books')}
-            className={`rounded-lg px-3 py-1.5 font-medium ${tab === 'books' ? 'bg-[var(--surface-2)]' : 'text-[var(--text-muted)]'}`}
+            key={tb.key}
+            onClick={() => setTab(tb.key)}
+            className={`rounded-lg px-3 py-1.5 font-medium ${tab === tb.key ? 'bg-[var(--surface-2)]' : 'text-[var(--text-muted)]'}`}
           >
-            📚 {t('books.search')}
+            {tb.label}
           </button>
-          <button
-            onClick={() => setTab('link')}
-            className={`rounded-lg px-3 py-1.5 font-medium ${tab === 'link' ? 'bg-[var(--surface-2)]' : 'text-[var(--text-muted)]'}`}
-          >
-            🔗 {t('link.import')}
-          </button>
-        </div>
+        ))}
+      </div>
 
-        {tab === 'books' ? (
-          <>
-            {count > 0 && (
-              <p className="mb-3 text-sm text-[var(--text-muted)]">
-                {t('books.count', { n: count.toLocaleString() })}
-              </p>
-            )}
-            <div className="flex gap-2">
-              <input
-                autoFocus
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && doSearch(q)}
-                placeholder={t('books.placeholder')}
-                className="flex-1 rounded-lg border border-[var(--border)] bg-white/5 px-4 py-2.5 text-sm outline-none focus:border-brand"
-              />
-              <button onClick={() => doSearch(q)} className="btn-glow rounded-lg px-5 py-2.5 text-sm font-medium">
-                {t('books.go')}
-              </button>
-            </div>
-
-            <div className="mt-4 grid max-h-[55vh] grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3">
-              {searching && <p className="col-span-full text-sm text-[var(--text-muted)]">{t('books.searching')}</p>}
-              {!searching && searched && hits.length === 0 && (
-                <p className="col-span-full text-sm text-[var(--text-muted)]">{t('books.none')}</p>
-              )}
-              {hits.map((b) => (
-                <button
-                  key={b.id}
-                  disabled={!b.textUrl}
-                  onClick={() => b.textUrl && onUse({ url: b.textUrl, name: `${b.title}.txt` })}
-                  className="group flex flex-col overflow-hidden rounded-xl border border-[var(--border)] bg-white/5 text-left transition hover:border-brand disabled:opacity-40"
-                >
-                  {b.cover ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={b.cover} alt="" className="h-40 w-full object-cover" />
-                  ) : (
-                    <div className="grid h-40 w-full place-items-center text-3xl">📘</div>
-                  )}
-                  <div className="p-2">
-                    <p className="line-clamp-2 text-xs font-semibold">{b.title}</p>
-                    <p className="mt-0.5 line-clamp-1 text-[11px] text-[var(--text-muted)]">{b.author}</p>
-                    <span className="mt-1 inline-block text-[11px] font-medium text-brand opacity-0 transition group-hover:opacity-100">
-                      {t('books.use')} →
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </>
-        ) : (
-          <div>
-            <p className="mb-3 text-sm text-[var(--text-muted)]">{t('link.hint')}</p>
-            <div className="flex gap-2">
-              <input
-                autoFocus
-                value={link}
-                onChange={(e) => setLink(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && importLink()}
-                placeholder={t('link.placeholder')}
-                className="flex-1 rounded-lg border border-[var(--border)] bg-white/5 px-4 py-2.5 text-sm outline-none focus:border-brand"
-              />
-              <button onClick={importLink} className="btn-glow rounded-lg px-5 py-2.5 text-sm font-medium">
-                {t('link.go')}
-              </button>
-            </div>
+      {tab === 'books' && (
+        <>
+          {count > 0 && (
+            <p className="mb-3 text-sm text-[var(--text-muted)]">
+              {t('books.count', { n: count.toLocaleString() })}
+            </p>
+          )}
+          <div className="flex gap-2">
+            <input
+              autoFocus
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && doSearch(q)}
+              placeholder={t('books.placeholder')}
+              className="flex-1 rounded-lg border border-[var(--border)] bg-white/5 px-4 py-2.5 text-sm outline-none focus:border-brand"
+            />
+            <button onClick={() => doSearch(q)} className="btn-glow rounded-lg px-5 py-2.5 text-sm font-medium">
+              {t('books.go')}
+            </button>
           </div>
-        )}
+
+          <div className="mt-4 grid max-h-[55vh] grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3">
+            {searching && <p className="col-span-full text-sm text-[var(--text-muted)]">{t('books.searching')}</p>}
+            {!searching && searched && hits.length === 0 && (
+              <p className="col-span-full text-sm text-[var(--text-muted)]">{t('books.none')}</p>
+            )}
+            {hits.map((b) => (
+              <button
+                key={b.id}
+                disabled={!b.textUrl}
+                onClick={() => b.textUrl && onUse({ url: b.textUrl, name: `${b.title}.txt` })}
+                className="group flex flex-col overflow-hidden rounded-xl border border-[var(--border)] bg-white/5 text-left transition hover:border-brand disabled:opacity-40"
+              >
+                {b.cover ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={b.cover} alt="" className="h-40 w-full object-cover" />
+                ) : (
+                  <div className="grid h-40 w-full place-items-center text-3xl">📘</div>
+                )}
+                <div className="p-2">
+                  <p className="line-clamp-2 text-xs font-semibold">{b.title}</p>
+                  <p className="mt-0.5 line-clamp-1 text-[11px] text-[var(--text-muted)]">{b.author}</p>
+                  <span className="mt-1 inline-block text-[11px] font-medium text-brand opacity-0 transition group-hover:opacity-100">
+                    {t('books.use')} →
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      {tab === 'ai' && (
+        <>
+          <p className="mb-3 text-sm text-[var(--text-muted)]">{t('rec.hint')}</p>
+          <div className="flex gap-2">
+            <input
+              autoFocus
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && doRecommend()}
+              placeholder={t('rec.placeholder')}
+              className="flex-1 rounded-lg border border-[var(--border)] bg-white/5 px-4 py-2.5 text-sm outline-none focus:border-brand"
+            />
+            <button onClick={doRecommend} disabled={recBusy} className="btn-glow rounded-lg px-5 py-2.5 text-sm font-medium disabled:opacity-50">
+              {recBusy ? '…' : t('rec.go')}
+            </button>
+          </div>
+
+          <div className="mt-4 max-h-[55vh] space-y-2 overflow-y-auto">
+            {recBusy && <p className="text-sm text-[var(--text-muted)]">{t('rec.thinking')}</p>}
+            {!recBusy && recs?.length === 0 && (
+              <p className="text-sm text-[var(--text-muted)]">{t('books.none')}</p>
+            )}
+            {recs?.map((r, i) => (
+              <div key={i} className="flex gap-3 rounded-xl border border-[var(--border)] bg-white/5 p-3">
+                {r.cover ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={r.cover} alt="" className="h-20 w-14 shrink-0 rounded object-cover" />
+                ) : (
+                  <div className="grid h-20 w-14 shrink-0 place-items-center rounded bg-[var(--surface-2)] text-xl">📘</div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold">{r.title}</p>
+                  <p className="text-[11px] text-[var(--text-muted)]">{r.author}</p>
+                  <p className="mt-1 text-xs text-[var(--text-muted)]">{r.why}</p>
+                  {r.textUrl ? (
+                    <button
+                      onClick={() => onUse({ url: r.textUrl!, name: `${r.title}.txt` })}
+                      className="mt-2 rounded-lg bg-brand/15 px-3 py-1 text-xs font-medium text-brand hover:bg-brand/25"
+                    >
+                      {t('books.use')} →
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setTab('books');
+                        setQ(r.title);
+                      }}
+                      className="mt-2 rounded-lg border border-[var(--border)] px-3 py-1 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text)]"
+                    >
+                      🔍 {t('rec.find')}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {tab === 'link' && (
+        <div>
+          <p className="mb-3 text-sm text-[var(--text-muted)]">{t('link.hint')}</p>
+          <div className="flex gap-2">
+            <input
+              autoFocus
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && importLink()}
+              placeholder={t('link.placeholder')}
+              className="flex-1 rounded-lg border border-[var(--border)] bg-white/5 px-4 py-2.5 text-sm outline-none focus:border-brand"
+            />
+            <button onClick={importLink} className="btn-glow rounded-lg px-5 py-2.5 text-sm font-medium">
+              {t('link.go')}
+            </button>
+          </div>
+        </div>
+      )}
     </Modal>
   );
 }

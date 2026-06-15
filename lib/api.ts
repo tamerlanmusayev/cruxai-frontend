@@ -156,6 +156,14 @@ export interface BookHit {
   textUrl: string | null;
 }
 
+export interface BookRecommendation {
+  title: string;
+  author: string;
+  why: string;
+  cover: string | null;
+  textUrl: string | null;
+}
+
 // ---------- documents ----------
 
 interface PresignedUpload {
@@ -254,6 +262,20 @@ export async function getBooksCount(): Promise<number> {
   const res = await fetch(`${API_URL}/books/count`);
   if (!res.ok) return 0;
   return (await res.json()).count as number;
+}
+
+/** AI-curated reading list for a goal/topic. */
+export async function recommendBooks(
+  topic: string,
+  lang?: string,
+): Promise<BookRecommendation[]> {
+  const res = await fetch(`${API_URL}/books/recommend`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ topic, lang }),
+  });
+  if (!res.ok) throw new Error(`Recommendation failed (${res.status})`);
+  return res.json();
 }
 
 // ---------- reviews ----------
