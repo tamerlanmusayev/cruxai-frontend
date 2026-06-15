@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { BookHit, getBooksCount, searchBooks } from '@/lib/api';
+import Modal from '@/components/Modal';
 import { useT } from '@/lib/i18n';
 
 interface Props {
@@ -21,10 +22,7 @@ export default function BookSearchModal({ onClose, onUse }: Props) {
 
   useEffect(() => {
     getBooksCount().then(setCount).catch(() => {});
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, []);
 
   async function doSearch() {
     if (!q.trim()) return;
@@ -47,23 +45,16 @@ export default function BookSearchModal({ onClose, onUse }: Props) {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 p-4 sm:p-8"
-      onClick={onClose}
-    >
-      <div
-        className="glass relative w-full max-w-2xl p-6 animate-[hiw-rise_0.25s_ease-out]"
-        onClick={(e) => e.stopPropagation()}
+    <Modal onClose={onClose} className="max-w-2xl">
+      <button
+        onClick={onClose}
+        aria-label="close"
+        className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-lg text-[var(--text-muted)] hover:bg-white/10 hover:text-[var(--text)]"
       >
-        <button
-          onClick={onClose}
-          aria-label="close"
-          className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-lg text-[var(--text-muted)] hover:bg-white/10 hover:text-[var(--text)]"
-        >
-          ✕
-        </button>
+        ✕
+      </button>
 
-        {/* tabs */}
+      {/* tabs */}
         <div className="mb-4 inline-flex rounded-xl border border-[var(--border)] p-1 text-sm">
           <button
             onClick={() => setTab('books')}
@@ -147,7 +138,6 @@ export default function BookSearchModal({ onClose, onUse }: Props) {
             </div>
           </div>
         )}
-      </div>
-    </div>
+    </Modal>
   );
 }

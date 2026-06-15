@@ -9,6 +9,7 @@ import { LANGS, Lang, useT } from '@/lib/i18n';
 import HowItWorksDemo from '@/components/HowItWorksDemo';
 import BookSearchModal from '@/components/BookSearchModal';
 import ReviewsSection from '@/components/ReviewsSection';
+import Modal from '@/components/Modal';
 
 const MAX_TOTAL_MB = 40;
 const MAX_FILES = 20;
@@ -281,14 +282,8 @@ export default function HomePage() {
 
       {/* language popup — shown right after files are added */}
       {askLang && (
-        <div
-          className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-4"
-          onClick={() => setAskLang(false)}
-        >
-          <div
-            className="glass relative w-full max-w-sm p-6 text-center"
-            onClick={(e) => e.stopPropagation()}
-          >
+        <Modal onClose={() => setAskLang(false)}>
+          <div className="text-center">
             <button
               onClick={() => setAskLang(false)}
               aria-label={t('home.cancel')}
@@ -334,7 +329,7 @@ export default function HomePage() {
                   : t('home.start')}
             </button>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

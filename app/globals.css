@@ -19,6 +19,10 @@
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: none; }
 }
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
 /* page content eases in on navigation */
 .page-enter { animation: fade-up 0.45s ease both; }

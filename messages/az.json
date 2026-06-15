@@ -47,6 +47,7 @@
   "reviews.send": "Göndər",
   "reviews.thanks": "Rəyin üçün təşəkkür!",
   "reviews.empty": "Hələ rəy yoxdur — birinci ol!",
+  "reviews.minHint": "Ən azı {n} simvol yaz.",
   "rating.count": "{n} rəy",
   "home.title": "İstənilən kitabı mənimsə",
   "home.subtitle": "Dərsliyi yüklə. Mənbəyə istinadlı konspekt, audio və zəif yerlərini tapan adaptiv test al.",

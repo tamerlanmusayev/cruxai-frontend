@@ -3,7 +3,10 @@
 import { useEffect, useState } from 'react';
 import { ReviewsSummary, createReview, getReviews } from '@/lib/api';
 import { ensureToken } from '@/lib/auth';
+import Modal from '@/components/Modal';
 import { useT } from '@/lib/i18n';
+
+const MIN_COMMENT = 5;
 
 function Stars({ value, size = 'text-base' }: { value: number; size?: string }) {
   return (
@@ -32,11 +35,15 @@ export default function ReviewsSection() {
     load();
   }, []);
 
+  const trimmedComment = comment.trim();
+  const canSend = trimmedComment.length >= MIN_COMMENT && !busy;
+
   async function send() {
+    if (!canSend) return;
     setBusy(true);
     try {
       const token = await ensureToken();
-      await createReview({ rating, comment: comment.trim() || undefined, name: name.trim() || undefined }, token);
+      await createReview({ rating, comment: trimmedComment, name: name.trim() || undefined }, token);
       setSent(true);
       await load();
     } finally {
@@ -84,56 +91,57 @@ export default function ReviewsSection() {
       </div>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setOpen(false)}>
-          <div className="glass w-full max-w-sm p-6 animate-[hiw-rise_0.25s_ease-out]" onClick={(e) => e.stopPropagation()}>
-            {sent ? (
-              <div className="text-center">
-                <p className="text-3xl">🎉</p>
-                <p className="mt-2 font-medium">{t('reviews.thanks')}</p>
-                <button onClick={() => setOpen(false)} className="btn-glow mt-4 rounded-lg px-5 py-2 text-sm font-medium">
-                  OK
-                </button>
+        <Modal onClose={() => setOpen(false)}>
+          {sent ? (
+            <div className="text-center">
+              <p className="text-3xl">🎉</p>
+              <p className="mt-2 font-medium">{t('reviews.thanks')}</p>
+              <button onClick={() => setOpen(false)} className="btn-glow mt-4 rounded-lg px-5 py-2 text-sm font-medium">
+                OK
+              </button>
+            </div>
+          ) : (
+            <>
+              <p className="text-lg font-semibold">{t('reviews.leave')}</p>
+              <p className="mt-3 text-sm text-[var(--text-muted)]">{t('reviews.your')}</p>
+              <div className="mt-1 text-3xl">
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setRating(n)}
+                    className={n <= rating ? 'text-amber-400' : 'text-[var(--border-strong)]'}
+                    aria-label={`${n} stars`}
+                  >
+                    ★
+                  </button>
+                ))}
               </div>
-            ) : (
-              <>
-                <p className="text-lg font-semibold">{t('reviews.leave')}</p>
-                <p className="mt-3 text-sm text-[var(--text-muted)]">{t('reviews.your')}</p>
-                <div className="mt-1 text-3xl">
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <button
-                      key={n}
-                      onClick={() => setRating(n)}
-                      className={n <= rating ? 'text-amber-400' : 'text-[var(--border-strong)]'}
-                      aria-label={`${n} stars`}
-                    >
-                      ★
-                    </button>
-                  ))}
-                </div>
-                <textarea
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  placeholder={t('reviews.comment')}
-                  rows={3}
-                  className="mt-3 w-full rounded-lg border border-[var(--border)] bg-white/5 px-3 py-2 text-sm outline-none focus:border-brand"
-                />
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder={t('reviews.name')}
-                  className="mt-2 w-full rounded-lg border border-[var(--border)] bg-white/5 px-3 py-2 text-sm outline-none focus:border-brand"
-                />
-                <button
-                  onClick={send}
-                  disabled={busy}
-                  className="btn-glow mt-4 w-full rounded-lg px-5 py-2.5 font-medium disabled:opacity-50"
-                >
-                  {busy ? '…' : t('reviews.send')}
-                </button>
-              </>
-            )}
-          </div>
-        </div>
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder={t('reviews.comment')}
+                rows={3}
+                className="mt-3 w-full rounded-lg border border-[var(--border)] bg-white/5 px-3 py-2 text-sm outline-none focus:border-brand"
+              />
+              <p className="mt-1 text-xs text-[var(--text-muted)]">
+                {t('reviews.minHint', { n: MIN_COMMENT })}
+              </p>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={t('reviews.name')}
+                className="mt-2 w-full rounded-lg border border-[var(--border)] bg-white/5 px-3 py-2 text-sm outline-none focus:border-brand"
+              />
+              <button
+                onClick={send}
+                disabled={!canSend}
+                className="btn-glow mt-4 w-full rounded-lg px-5 py-2.5 font-medium disabled:opacity-50"
+              >
+                {busy ? '…' : t('reviews.send')}
+              </button>
+            </>
+          )}
+        </Modal>
       )}
     </section>
   );

@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import Modal from '@/components/Modal';
 import { useT } from '@/lib/i18n';
 
 /**
@@ -15,13 +16,6 @@ export default function DemoVideo() {
   const ytId = src.match(
     /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]{11})/,
   )?.[1];
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [open]);
 
   return (
     <>
@@ -40,45 +34,37 @@ export default function DemoVideo() {
       </button>
 
       {open && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-          onClick={() => setOpen(false)}
-        >
-          <div
-            className="glass relative w-[92vw] max-w-5xl p-3"
-            onClick={(e) => e.stopPropagation()}
+        <Modal onClose={() => setOpen(false)} className="max-w-5xl">
+          <button
+            onClick={() => setOpen(false)}
+            aria-label="Close"
+            className="absolute -top-3 -right-3 z-10 grid h-9 w-9 place-items-center rounded-full bg-base text-slate-300 ring-1 ring-white/15 hover:text-ink"
           >
-            <button
-              onClick={() => setOpen(false)}
-              aria-label="Close"
-              className="absolute -top-3 -right-3 z-10 grid h-9 w-9 place-items-center rounded-full bg-base text-slate-300 ring-1 ring-white/15 hover:text-ink"
+            ✕
+          </button>
+          <p className="px-2 py-2 text-sm font-medium text-slate-300">
+            {t('demo.title')}
+          </p>
+          {ytId ? (
+            <iframe
+              className="aspect-video max-h-[78vh] w-full rounded-xl bg-black"
+              src={`https://www.youtube.com/embed/${ytId}?autoplay=1`}
+              title={t('demo.title')}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : (
+            <video
+              className="max-h-[78vh] w-full rounded-xl bg-black"
+              controls
+              autoPlay
+              playsInline
+              preload="metadata"
             >
-              ✕
-            </button>
-            <p className="px-2 py-2 text-sm font-medium text-slate-300">
-              {t('demo.title')}
-            </p>
-            {ytId ? (
-              <iframe
-                className="aspect-video max-h-[78vh] w-full rounded-xl bg-black"
-                src={`https://www.youtube.com/embed/${ytId}?autoplay=1`}
-                title={t('demo.title')}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            ) : (
-              <video
-                className="max-h-[78vh] w-full rounded-xl bg-black"
-                controls
-                autoPlay
-                playsInline
-                preload="metadata"
-              >
-                <source src={src} type="video/mp4" />
-              </video>
-            )}
-          </div>
-        </div>
+              <source src={src} type="video/mp4" />
+            </video>
+          )}
+        </Modal>
       )}
     </>
   );

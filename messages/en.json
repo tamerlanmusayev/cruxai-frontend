@@ -47,6 +47,7 @@
   "reviews.send": "Send review",
   "reviews.thanks": "Thanks for your feedback!",
   "reviews.empty": "No reviews yet — be the first!",
+  "reviews.minHint": "Please write at least {n} characters.",
   "rating.count": "{n} reviews",
   "home.title": "Master any book",
   "home.subtitle": "Drop in a textbook. Get a citation-grounded summary, audio, and an adaptive quiz that hunts down exactly what you don't know yet.",
