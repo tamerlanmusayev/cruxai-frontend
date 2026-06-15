@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { createFromSources, uploadFiles } from '@/lib/api';
 import { ensureToken } from '@/lib/auth';
 import { getRecaptchaToken } from '@/lib/recaptcha';
@@ -34,13 +34,9 @@ export default function HomePage() {
   const [modalLang, setModalLang] = useState<Lang>(lang);
   const [showBooks, setShowBooks] = useState(false);
   const [booksTab, setBooksTab] = useState<'books' | 'link'>('books');
+  // a picked book / pasted link awaiting a notes-language choice
+  const [pendingSource, setPendingSource] = useState<{ url: string; name: string } | null>(null);
 
-  useEffect(() => {
-    if (!askLang) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setAskLang(false);
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [askLang]);
 
   const valid = files.filter((f) => ALLOWED.includes(extOf(f.name)));
   const invalid = files.filter((f) => !ALLOWED.includes(extOf(f.name)));
@@ -78,31 +74,31 @@ export default function HomePage() {
     setFiles((prev) => prev.filter((_, i) => i !== idx));
   }
 
-  // Create a document from a remote source (picked book or pasted link).
-  async function startFromSources(source: { url: string; name: string }) {
+  // A book/link was picked — ask the notes language before creating it.
+  function pickSource(source: { url: string; name: string }) {
     setShowBooks(false);
-    setBusy(true);
-    setError(null);
-    try {
-      const authToken = await ensureToken();
-      const captcha = await getRecaptchaToken('upload');
-      const { id } = await createFromSources([source], authToken, lang, captcha);
-      router.push(`/doc/${id}`);
-    } catch (e) {
-      setError((e as Error).message);
-      setBusy(false);
-    }
+    setPendingSource(source);
+    setModalLang(lang);
+    setAskLang(true);
+  }
+
+  function closeAskLang() {
+    setAskLang(false);
+    setPendingSource(null);
   }
 
   async function submitWith(notesLang: Lang) {
-    if (!canStart) return;
+    if (!pendingSource && !canStart) return;
     setAskLang(false);
     setBusy(true);
     setError(null);
     try {
       const authToken = await ensureToken();
       const captcha = await getRecaptchaToken('upload');
-      const { id } = await uploadFiles(valid, authToken, notesLang, captcha);
+      const { id } = pendingSource
+        ? await createFromSources([pendingSource], authToken, notesLang, captcha)
+        : await uploadFiles(valid, authToken, notesLang, captcha);
+      setPendingSource(null);
       router.push(`/doc/${id}`);
     } catch (e) {
       setError((e as Error).message);
@@ -287,16 +283,22 @@ export default function HomePage() {
         <BookSearchModal
           initialTab={booksTab}
           onClose={() => setShowBooks(false)}
-          onUse={startFromSources}
+          onUse={pickSource}
         />
       )}
 
-      {/* language popup — shown right after files are added */}
+      {/* language popup — shown before any import (files, book, or link) */}
       {askLang && (
-        <Modal onClose={() => setAskLang(false)}>
+        <Modal onClose={closeAskLang}>
           <div className="text-center">
             <p className="text-lg font-semibold">{t('home.notesLang')}</p>
             <p className="mt-1 text-sm text-slate-400">{t('home.notesLangHint')}</p>
+
+            {pendingSource && (
+              <p className="mt-3 truncate rounded-lg bg-white/5 px-3 py-2 text-xs text-slate-300">
+                📖 {pendingSource.name}
+              </p>
+            )}
 
             {invalid.length > 0 && (
               <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-left text-xs text-amber-200">
@@ -323,14 +325,16 @@ export default function HomePage() {
             </div>
             <button
               onClick={() => submitWith(modalLang)}
-              disabled={busy || !canStart}
+              disabled={busy || (!pendingSource && !canStart)}
               className="btn-glow mt-5 w-full rounded-lg px-5 py-3 font-medium disabled:opacity-50"
             >
               {busy
                 ? t('home.working')
-                : invalid.length > 0
-                  ? t('home.startWithout', { n: valid.length })
-                  : t('home.start')}
+                : pendingSource
+                  ? t('home.start')
+                  : invalid.length > 0
+                    ? t('home.startWithout', { n: valid.length })
+                    : t('home.start')}
             </button>
           </div>
         </Modal>
