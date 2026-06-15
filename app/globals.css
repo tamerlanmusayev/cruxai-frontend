@@ -4,27 +4,52 @@
 
 :root {
   color-scheme: dark;
+  --bg: #08080f;
+  --text: #e7e7f0;
+  --text-muted: #9aa0b4;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-2: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.22);
+  --glow-1: rgba(129, 140, 248, 0.18);
+  --glow-2: rgba(192, 132, 252, 0.12);
+  --grid: rgba(255, 255, 255, 0.035);
+}
+
+html.light {
+  color-scheme: light;
+  --bg: #f5f6fb;
+  --text: #1c2030;
+  --text-muted: #5b6172;
+  --surface: #ffffff;
+  --surface-2: #eef0f8;
+  --border: rgba(15, 23, 42, 0.10);
+  --border-strong: rgba(15, 23, 42, 0.20);
+  --glow-1: rgba(129, 140, 248, 0.16);
+  --glow-2: rgba(192, 132, 252, 0.12);
+  --grid: rgba(15, 23, 42, 0.04);
 }
 
 body {
-  @apply bg-base text-ink antialiased;
+  @apply antialiased;
+  color: var(--text);
   font-family: var(--font-sans), system-ui, sans-serif;
   min-height: 100vh;
-  background-color: #08080f;
+  background-color: var(--bg);
   /* layered glow + grid */
   background-image:
-    radial-gradient(60% 50% at 50% -10%, rgba(129, 140, 248, 0.18), transparent 70%),
-    radial-gradient(40% 40% at 100% 0%, rgba(192, 132, 252, 0.12), transparent 70%),
-    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    radial-gradient(60% 50% at 50% -10%, var(--glow-1), transparent 70%),
+    radial-gradient(40% 40% at 100% 0%, var(--glow-2), transparent 70%),
+    linear-gradient(to right, var(--grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
   background-size: 100% 100%, 100% 100%, 44px 44px, 44px 44px;
   background-attachment: fixed;
 }
 
-/* ---------- reusable dark/glass primitives ---------- */
+/* ---------- reusable glass primitives (theme-aware) ---------- */
 .glass {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 16px;
   backdrop-filter: blur(12px);
 }

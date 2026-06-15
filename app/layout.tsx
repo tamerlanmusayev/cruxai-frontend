@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter, Caveat } from 'next/font/google';
 import './globals.css';
 import { LangProvider } from '@/lib/i18n';
+import { ThemeProvider, themeNoFlashScript } from '@/lib/theme';
 import AppShell from '@/components/AppShell';
 import Analytics from '@/components/Analytics';
 
@@ -61,10 +62,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${caveat.variable}`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeNoFlashScript }} />
+      </head>
       <body>
-        <LangProvider>
-          <AppShell>{children}</AppShell>
-        </LangProvider>
+        <ThemeProvider>
+          <LangProvider>
+            <AppShell>{children}</AppShell>
+          </LangProvider>
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>

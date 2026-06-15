@@ -1,5 +1,7 @@
 {
   "nav.new": "New summary",
+  "theme.light": "Light theme",
+  "theme.dark": "Dark theme",
   "nav.stats": "Stats",
   "nav.library": "Library",
   "lib.title": "My library",
