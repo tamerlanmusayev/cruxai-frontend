@@ -88,7 +88,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </span>
       )}
 
-      <div className="mt-6 flex-1">{NavLinks}</div>
+      <Link
+        href="/"
+        className="btn-glow mt-6 flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold"
+      >
+        <span aria-hidden className="text-base">＋</span>
+        <span>{t('nav.new')}</span>
+      </Link>
+
+      <div className="mt-4 flex-1">{NavLinks}</div>
 
       <div className="mt-6 space-y-3 border-t border-white/10 px-3 pt-4">
         {LangSwitcher}
