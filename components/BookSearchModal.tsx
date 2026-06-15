@@ -141,9 +141,15 @@ export default function BookSearchModal({ onClose, onUse, initialTab = 'books' }
                 <div className="p-2">
                   <p className="line-clamp-2 text-xs font-semibold">{b.title}</p>
                   <p className="mt-0.5 line-clamp-1 text-[11px] text-[var(--text-muted)]">{b.author}</p>
-                  <span className="mt-1 inline-block text-[11px] font-medium text-brand opacity-0 transition group-hover:opacity-100">
-                    {t('books.use')} →
-                  </span>
+                  {b.textUrl ? (
+                    <span className="mt-1 inline-block text-[11px] font-medium text-brand opacity-0 transition group-hover:opacity-100">
+                      {t('books.use')} →
+                    </span>
+                  ) : (
+                    <span className="mt-1 inline-block text-[11px] text-[var(--text-muted)]">
+                      {t('books.noText')}
+                    </span>
+                  )}
                 </div>
               </button>
             ))}

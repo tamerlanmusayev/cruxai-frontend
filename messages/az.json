@@ -37,6 +37,7 @@
   "books.count": "{n}+ pulsuz kitab",
   "books.none": "Heç nə tapılmadı — başqa ad yoxla.",
   "books.searching": "Axtarıram…",
+  "books.noText": "pulsuz mətn yoxdur — öz faylını yüklə",
   "rec.tab": "AI seçimi",
   "rec.hint": "AI-ya məqsədini de — ən yaxşı kitabları seçəcək və pulsuzlarını tapacaq.",
   "rec.placeholder": "məs. biznes haqqında top 10 kitab",

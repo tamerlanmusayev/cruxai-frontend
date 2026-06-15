@@ -38,6 +38,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       '/progress': t('progress.title'),
       '/synthesis': t('syn.title'),
       '/stats': t('nav.stats'),
+      '/privacy': 'Privacy',
+      '/terms': 'Terms',
     };
     let section: string | undefined;
     if (pathname === '/') section = undefined;
@@ -203,6 +205,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <span>{t('support.donate')}</span>
           </a>
         )}
+
+        {/* legal */}
+        <div className="flex gap-3 px-1 text-[11px] text-[var(--text-muted)]">
+          <Link href="/privacy" className="hover:text-[var(--text)]">Privacy</Link>
+          <Link href="/terms" className="hover:text-[var(--text)]">Terms</Link>
+        </div>
 
         {/* tagline */}
         <p className="px-1 pt-1 text-[11px] leading-relaxed text-[var(--text-muted)]">
