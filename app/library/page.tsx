@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { LIBRARY_PAGE, LibraryItem, getLibrary } from '@/lib/api';
+import { LIBRARY_PAGE, LibraryItem, getLibrary, deleteDocument } from '@/lib/api';
 import { ensureToken } from '@/lib/auth';
 import { useT } from '@/lib/i18n';
+import Modal from '@/components/Modal';
 
 export default function LibraryPage() {
   const { t } = useT();
@@ -12,6 +13,8 @@ export default function LibraryPage() {
   const [error, setError] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
+  const [pending, setPending] = useState<LibraryItem | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -40,6 +43,20 @@ export default function LibraryPage() {
     }
   }
 
+  async function confirmDelete() {
+    if (!pending) return;
+    setDeleting(true);
+    try {
+      await deleteDocument(pending.id);
+      setItems((prev) => (prev ? prev.filter((x) => x.id !== pending.id) : prev));
+      setPending(null);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   return (
     <div>
       <h1 className="text-3xl font-extrabold">
@@ -59,24 +76,30 @@ export default function LibraryPage() {
 
       <ul className="mt-8 space-y-3">
         {items?.map((d) => (
-          <li key={d.id}>
-            <Link
-              href={`/doc/${d.id}`}
-              className="glass flex items-center justify-between p-4 transition hover:border-white/25"
-            >
-              <span className="flex items-center gap-3">
-                <span>📓</span>
-                <span className="font-medium text-ink">{d.title}</span>
-              </span>
-              <span className="flex items-center gap-3 text-xs text-slate-500">
-                {d.language && (
-                  <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 uppercase">
-                    {d.language}
-                  </span>
-                )}
-                <StatusBadge status={d.status} />
-              </span>
+          <li
+            key={d.id}
+            className="glass flex items-center justify-between p-4 transition hover:border-white/25"
+          >
+            <Link href={`/doc/${d.id}`} className="flex min-w-0 flex-1 items-center gap-3">
+              <span>📓</span>
+              <span className="truncate font-medium text-ink">{d.title}</span>
             </Link>
+            <span className="ml-3 flex shrink-0 items-center gap-3 text-xs text-slate-500">
+              {d.language && (
+                <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 uppercase">
+                  {d.language}
+                </span>
+              )}
+              <StatusBadge status={d.status} />
+              <button
+                onClick={() => setPending(d)}
+                aria-label={t('lib.delete')}
+                title={t('lib.delete')}
+                className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 transition hover:bg-red-500/15 hover:text-red-400"
+              >
+                🗑
+              </button>
+            </span>
           </li>
         ))}
       </ul>
@@ -91,6 +114,31 @@ export default function LibraryPage() {
             {loadingMore ? '…' : t('lib.more')}
           </button>
         </div>
+      )}
+
+      {pending && (
+        <Modal onClose={() => !deleting && setPending(null)}>
+          <h2 className="text-lg font-bold text-ink">{t('lib.deleteTitle')}</h2>
+          <p className="mt-2 text-sm text-slate-400">
+            {t('lib.deleteBody').replace('{title}', pending.title)}
+          </p>
+          <div className="mt-6 flex justify-end gap-3">
+            <button
+              onClick={() => setPending(null)}
+              disabled={deleting}
+              className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-white/25 disabled:opacity-50"
+            >
+              {t('common.cancel')}
+            </button>
+            <button
+              onClick={confirmDelete}
+              disabled={deleting}
+              className="rounded-lg bg-red-500/90 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-500 disabled:opacity-50"
+            >
+              {deleting ? '…' : t('lib.delete')}
+            </button>
+          </div>
+        </Modal>
       )}
     </div>
   );

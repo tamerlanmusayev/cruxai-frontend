@@ -314,6 +314,33 @@ export async function getLibrary(skip = 0, take = LIBRARY_PAGE): Promise<Library
   return res.json();
 }
 
+/** Owner-only delete. Cascade removes summary/quiz/flashcards/concepts, so
+ * the doc also disappears from Review, Progress and Synthesis. */
+export async function deleteDocument(id: string): Promise<void> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('cruxai_token') : null;
+  const res = await fetch(`${API_URL}/documents/${id}`, {
+    method: 'DELETE',
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
+  if (!res.ok) throw new Error(`Could not delete (${res.status})`);
+}
+
+export interface UsageStatus {
+  used: number;
+  limit: number;
+  remaining: number;
+}
+
+/** Today's remaining generation quota for the current user. */
+export async function getUsage(): Promise<UsageStatus> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('cruxai_token') : null;
+  const res = await fetch(`${API_URL}/usage`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
+  if (!res.ok) throw new Error(`Could not load usage (${res.status})`);
+  return res.json();
+}
+
 /** Owner-only inline edit of the generated summary (no AI cost). */
 export async function updateSummary(
   docId: string,

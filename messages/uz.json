@@ -161,5 +161,11 @@
   "syn.run": "Sintez qilish →",
   "syn.working": "Sintez qilinmoqda…",
   "syn.consensus": "Konsensus",
-  "syn.diff": "Manbalar o'rtasidagi farqlar"
+  "syn.diff": "Manbalar o'rtasidagi farqlar",
+  "lib.delete": "O‘chirish",
+  "lib.deleteTitle": "Bu konspekt o‘chirilsinmi?",
+  "lib.deleteBody": "“{title}” va undan yaratilgan hamma narsa (test, kartalar, progress) butunlay o‘chiriladi.",
+  "lib.more": "Ko‘proq ko‘rsatish",
+  "common.cancel": "Bekor qilish",
+  "usage.label": "Bugun qolgan generatsiyalar"
 }

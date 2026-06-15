@@ -171,5 +171,10 @@
   "syn.run": "Sintez et →",
   "syn.working": "Sintez olunur…",
   "syn.consensus": "Konsensus",
-  "syn.diff": "Mənbələr arasında fərqlər"
+  "syn.diff": "Mənbələr arasında fərqlər",
+  "lib.delete": "Sil",
+  "lib.deleteTitle": "Bu konspekt silinsin?",
+  "lib.deleteBody": "«{title}» və ondan yaradılan hər şey (test, kartlar, irəliləyiş) həmişəlik silinəcək.",
+  "common.cancel": "Ləğv et",
+  "usage.label": "Bu gün qalan generasiyalar"
 }

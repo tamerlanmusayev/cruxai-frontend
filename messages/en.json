@@ -171,5 +171,10 @@
   "syn.run": "Synthesize →",
   "syn.working": "Synthesizing…",
   "syn.consensus": "Consensus",
-  "syn.diff": "Differences between sources"
+  "syn.diff": "Differences between sources",
+  "lib.delete": "Delete",
+  "lib.deleteTitle": "Delete this note?",
+  "lib.deleteBody": "“{title}” and everything generated from it (quiz, flashcards, progress) will be permanently removed. This can’t be undone.",
+  "common.cancel": "Cancel",
+  "usage.label": "Generations left today"
 }

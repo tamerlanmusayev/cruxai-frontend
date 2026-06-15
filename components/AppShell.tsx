@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react';
 import { LANGS, useT } from '@/lib/i18n';
 import { useTheme } from '@/lib/theme';
 import { useOnline } from '@/lib/socket';
+import { UsageStatus, getUsage } from '@/lib/api';
+import { ensureToken } from '@/lib/auth';
 import DemoVideo from '@/components/DemoVideo';
 
 const GITHUB_URL =
@@ -22,6 +24,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
+  const [usage, setUsage] = useState<UsageStatus | null>(null);
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
   const currentLang = LANGS.find((l) => l.code === lang) ?? LANGS[2];
@@ -30,6 +33,24 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setOpen(false);
     setLangOpen(false);
+  }, [pathname]);
+
+  // Refresh today's generation quota on every navigation (cheap; reflects a
+  // just-created note when the user lands on /doc/:id or /library).
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        await ensureToken();
+        const u = await getUsage();
+        if (!cancelled) setUsage(u);
+      } catch {
+        /* non-critical — quota chip just stays hidden */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [pathname]);
 
   // Keep the browser tab title in sync with the current page.
@@ -117,6 +138,27 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <span aria-hidden className="text-base">📊</span>
         <span>{t('nav.stats')}</span>
       </Link>
+
+      {usage && (
+        <div className="mb-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-[var(--text-muted)]">{t('usage.label')}</span>
+            <span
+              className={`font-semibold tabular-nums ${
+                usage.remaining <= 3 ? 'text-amber-400' : 'text-[var(--text)]'
+              }`}
+            >
+              {usage.remaining}/{usage.limit}
+            </span>
+          </div>
+          <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-[var(--surface-2)]">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-fuchsia-500 transition-all"
+              style={{ width: `${Math.max(0, (usage.remaining / usage.limit) * 100)}%` }}
+            />
+          </div>
+        </div>
+      )}
 
       <div className="space-y-2 border-t border-[var(--border)] pt-3">
         {/* language dropdown */}

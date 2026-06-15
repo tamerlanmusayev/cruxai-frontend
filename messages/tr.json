@@ -161,5 +161,11 @@
   "syn.run": "Sentezle →",
   "syn.working": "Sentezleniyor…",
   "syn.consensus": "Uzlaşı",
-  "syn.diff": "Kaynaklar arasındaki farklar"
+  "syn.diff": "Kaynaklar arasındaki farklar",
+  "lib.delete": "Sil",
+  "lib.deleteTitle": "Bu not silinsin mi?",
+  "lib.deleteBody": "“{title}” ve ondan üretilen her şey (test, kartlar, ilerleme) kalıcı olarak silinecek.",
+  "lib.more": "Daha fazla göster",
+  "common.cancel": "İptal",
+  "usage.label": "Bugün kalan üretim"
 }
