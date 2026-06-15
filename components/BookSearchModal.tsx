@@ -10,13 +10,14 @@ type Tab = 'books' | 'link' | 'ai';
 interface Props {
   onClose: () => void;
   onUse: (source: { url: string; name: string }) => void;
+  onOverview: (title: string) => void;
   initialTab?: Tab;
 }
 
 const DEBOUNCE_MS = 500;
 const MIN_QUERY = 2;
 
-export default function BookSearchModal({ onClose, onUse, initialTab = 'books' }: Props) {
+export default function BookSearchModal({ onClose, onUse, onOverview, initialTab = 'books' }: Props) {
   const { t, lang } = useT();
   const [tab, setTab] = useState<Tab>(initialTab);
   const [q, setQ] = useState('');
@@ -126,32 +127,36 @@ export default function BookSearchModal({ onClose, onUse, initialTab = 'books' }
               <p className="col-span-full text-sm text-[var(--text-muted)]">{t('books.none')}</p>
             )}
             {hits.map((b) => (
-              <button
+              <div
                 key={b.id}
-                disabled={!b.textUrl}
-                onClick={() => b.textUrl && onUse({ url: b.textUrl, name: `${b.title}.txt` })}
-                className="group flex flex-col overflow-hidden rounded-xl border border-[var(--border)] bg-white/5 text-left transition hover:border-brand disabled:opacity-40"
+                className="flex flex-col overflow-hidden rounded-xl border border-[var(--border)] bg-white/5"
               >
                 {b.cover ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={b.cover} alt="" className="h-40 w-full object-cover" />
+                  <img src={b.cover} alt="" className="h-36 w-full object-cover" />
                 ) : (
-                  <div className="grid h-40 w-full place-items-center text-3xl">📘</div>
+                  <div className="grid h-36 w-full place-items-center text-3xl">📘</div>
                 )}
-                <div className="p-2">
+                <div className="flex flex-1 flex-col p-2">
                   <p className="line-clamp-2 text-xs font-semibold">{b.title}</p>
                   <p className="mt-0.5 line-clamp-1 text-[11px] text-[var(--text-muted)]">{b.author}</p>
                   {b.textUrl ? (
-                    <span className="mt-1 inline-block text-[11px] font-medium text-brand opacity-0 transition group-hover:opacity-100">
+                    <button
+                      onClick={() => onUse({ url: b.textUrl!, name: `${b.title}.txt` })}
+                      className="mt-auto rounded-lg bg-brand/15 px-2 py-1 text-[11px] font-medium text-brand hover:bg-brand/25"
+                    >
                       {t('books.use')} →
-                    </span>
+                    </button>
                   ) : (
-                    <span className="mt-1 inline-block text-[11px] text-[var(--text-muted)]">
-                      {t('books.noText')}
-                    </span>
+                    <button
+                      onClick={() => onOverview(b.title)}
+                      className="mt-auto rounded-lg border border-[var(--border)] px-2 py-1 text-[11px] font-medium text-[var(--text-muted)] hover:border-brand hover:text-[var(--text)]"
+                    >
+                      {t('books.overview')}
+                    </button>
                   )}
                 </div>
-              </button>
+              </div>
             ))}
           </div>
         </>
@@ -191,24 +196,22 @@ export default function BookSearchModal({ onClose, onUse, initialTab = 'books' }
                   <p className="text-sm font-semibold">{r.title}</p>
                   <p className="text-[11px] text-[var(--text-muted)]">{r.author}</p>
                   <p className="mt-1 text-xs text-[var(--text-muted)]">{r.why}</p>
-                  {r.textUrl ? (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {r.textUrl && (
+                      <button
+                        onClick={() => onUse({ url: r.textUrl!, name: `${r.title}.txt` })}
+                        className="rounded-lg bg-brand/15 px-3 py-1 text-xs font-medium text-brand hover:bg-brand/25"
+                      >
+                        {t('books.use')} →
+                      </button>
+                    )}
                     <button
-                      onClick={() => onUse({ url: r.textUrl!, name: `${r.title}.txt` })}
-                      className="mt-2 rounded-lg bg-brand/15 px-3 py-1 text-xs font-medium text-brand hover:bg-brand/25"
+                      onClick={() => onOverview(r.title)}
+                      className="rounded-lg border border-[var(--border)] px-3 py-1 text-xs font-medium text-[var(--text-muted)] hover:border-brand hover:text-[var(--text)]"
                     >
-                      {t('books.use')} →
+                      {t('books.overview')}
                     </button>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        setTab('books');
-                        setQ(r.title);
-                      }}
-                      className="mt-2 rounded-lg border border-[var(--border)] px-3 py-1 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text)]"
-                    >
-                      🔍 {t('rec.find')}
-                    </button>
-                  )}
+                  </div>
                 </div>
               </div>
             ))}

@@ -38,6 +38,7 @@
   "books.none": "Nothing found — try another title.",
   "books.searching": "Searching…",
   "books.noText": "no free text — upload your copy",
+  "books.overview": "✨ AI overview",
   "rec.tab": "AI picks",
   "rec.hint": "Tell the AI your goal — it recommends the best books and finds the free ones.",
   "rec.placeholder": "e.g. top 10 books on business",

@@ -240,6 +240,16 @@ export async function getDocument(id: string): Promise<DocumentDetail> {
   return DocumentsService.documentsControllerFindOne({ id });
 }
 
+/** Create a document from an AI overview of a book (copyrighted, no free text). */
+export async function overviewBook(
+  title: string,
+  token: string,
+  lang?: string,
+  recaptchaToken?: string,
+): Promise<{ id: string }> {
+  return postJson<{ id: string }>('/documents/overview', { title, lang }, token, recaptchaToken);
+}
+
 /** Create a document from remote sources (a link or a picked book). */
 export async function createFromSources(
   sources: { url?: string; key?: string; name: string }[],

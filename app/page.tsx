@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
-import { createFromSources, uploadFiles } from '@/lib/api';
+import { createFromSources, overviewBook, uploadFiles } from '@/lib/api';
 import { ensureToken } from '@/lib/auth';
 import { getRecaptchaToken } from '@/lib/recaptcha';
 import { LANGS, Lang, useT } from '@/lib/i18n';
@@ -22,6 +22,13 @@ function extOf(name: string): string {
   return m ? m[1] : '';
 }
 
+/** Human-readable size that doesn't collapse small files to "0.0 MB". */
+function humanSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
 export default function HomePage() {
   const router = useRouter();
   const { t, lang } = useT();
@@ -34,8 +41,11 @@ export default function HomePage() {
   const [modalLang, setModalLang] = useState<Lang>(lang);
   const [showBooks, setShowBooks] = useState(false);
   const [booksTab, setBooksTab] = useState<'books' | 'link'>('books');
-  // a picked book / pasted link awaiting a notes-language choice
-  const [pendingSource, setPendingSource] = useState<{ url: string; name: string } | null>(null);
+  // a picked book / pasted link / AI-overview awaiting a notes-language choice
+  type Pending =
+    | { kind: 'source'; url: string; name: string; label: string }
+    | { kind: 'overview'; title: string; label: string };
+  const [pending, setPending] = useState<Pending | null>(null);
 
 
   const valid = files.filter((f) => ALLOWED.includes(extOf(f.name)));
@@ -74,31 +84,46 @@ export default function HomePage() {
     setFiles((prev) => prev.filter((_, i) => i !== idx));
   }
 
-  // A book/link was picked — ask the notes language before creating it.
+  // A book/link/overview was picked — ask the notes language before creating.
   function pickSource(source: { url: string; name: string }) {
     setShowBooks(false);
-    setPendingSource(source);
+    setPending({ kind: 'source', ...source, label: source.name });
+    setModalLang(lang);
+    setAskLang(true);
+  }
+
+  function pickOverview(title: string) {
+    setShowBooks(false);
+    setPending({ kind: 'overview', title, label: `✨ ${title}` });
     setModalLang(lang);
     setAskLang(true);
   }
 
   function closeAskLang() {
     setAskLang(false);
-    setPendingSource(null);
+    setPending(null);
   }
 
   async function submitWith(notesLang: Lang) {
-    if (!pendingSource && !canStart) return;
+    if (!pending && !canStart) return;
     setAskLang(false);
     setBusy(true);
     setError(null);
     try {
       const authToken = await ensureToken();
       const captcha = await getRecaptchaToken('upload');
-      const { id } = pendingSource
-        ? await createFromSources([pendingSource], authToken, notesLang, captcha)
-        : await uploadFiles(valid, authToken, notesLang, captcha);
-      setPendingSource(null);
+      const { id } =
+        pending?.kind === 'overview'
+          ? await overviewBook(pending.title, authToken, notesLang, captcha)
+          : pending?.kind === 'source'
+            ? await createFromSources(
+                [{ url: pending.url, name: pending.name }],
+                authToken,
+                notesLang,
+                captcha,
+              )
+            : await uploadFiles(valid, authToken, notesLang, captcha);
+      setPending(null);
       router.push(`/doc/${id}`);
     } catch (e) {
       setError((e as Error).message);
@@ -218,7 +243,7 @@ export default function HomePage() {
                     )}
                   </span>
                   <span className="flex items-center gap-2 text-slate-500">
-                    {(f.size / 1024 / 1024).toFixed(1)} MB
+                    {humanSize(f.size)}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -236,7 +261,7 @@ export default function HomePage() {
           </ul>
           <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3 text-sm">
             <span className={overLimit ? 'font-medium text-red-400' : 'text-slate-400'}>
-              {validMb.toFixed(1)} / {MAX_TOTAL_MB} MB
+              {humanSize(valid.reduce((s, f) => s + f.size, 0))} / {MAX_TOTAL_MB} MB
             </span>
             <button
               onClick={() => {
@@ -284,6 +309,7 @@ export default function HomePage() {
           initialTab={booksTab}
           onClose={() => setShowBooks(false)}
           onUse={pickSource}
+          onOverview={pickOverview}
         />
       )}
 
@@ -294,9 +320,9 @@ export default function HomePage() {
             <p className="text-lg font-semibold">{t('home.notesLang')}</p>
             <p className="mt-1 text-sm text-slate-400">{t('home.notesLangHint')}</p>
 
-            {pendingSource && (
+            {pending && (
               <p className="mt-3 truncate rounded-lg bg-white/5 px-3 py-2 text-xs text-slate-300">
-                📖 {pendingSource.name}
+                📖 {pending.label}
               </p>
             )}
 
@@ -325,12 +351,12 @@ export default function HomePage() {
             </div>
             <button
               onClick={() => submitWith(modalLang)}
-              disabled={busy || (!pendingSource && !canStart)}
+              disabled={busy || (!pending && !canStart)}
               className="btn-glow mt-5 w-full rounded-lg px-5 py-3 font-medium disabled:opacity-50"
             >
               {busy
                 ? t('home.working')
-                : pendingSource
+                : pending
                   ? t('home.start')
                   : invalid.length > 0
                     ? t('home.startWithout', { n: valid.length })

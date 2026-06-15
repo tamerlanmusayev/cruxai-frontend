@@ -4,11 +4,11 @@ export const metadata = { title: 'Terms of Use' };
 
 export default function TermsPage() {
   return (
-    <article className="reader mx-auto max-w-2xl">
-      <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Terms of Use</h1>
-      <p className="mt-2 text-sm text-slate-500">Last updated: 15 June 2026</p>
+    <article className="glass mx-auto max-w-2xl p-6 sm:p-8">
+      <h1 className="text-3xl font-extrabold tracking-tight">Terms of Use</h1>
+      <p className="mt-2 text-sm text-[var(--text-muted)]">Last updated: 15 June 2026</p>
 
-      <div className="prose-note mt-6">
+      <div className="legal mt-6">
         <p>
           By using CruxAI you agree to these terms. CruxAI is a free, open-source
           service provided as-is.

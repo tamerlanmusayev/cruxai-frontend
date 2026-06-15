@@ -4,11 +4,11 @@ export const metadata = { title: 'Privacy Policy' };
 
 export default function PrivacyPage() {
   return (
-    <article className="reader mx-auto max-w-2xl">
-      <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Privacy Policy</h1>
-      <p className="mt-2 text-sm text-slate-500">Last updated: 15 June 2026</p>
+    <article className="glass mx-auto max-w-2xl p-6 sm:p-8">
+      <h1 className="text-3xl font-extrabold tracking-tight">Privacy Policy</h1>
+      <p className="mt-2 text-sm text-[var(--text-muted)]">Last updated: 15 June 2026</p>
 
-      <div className="prose-note mt-6">
+      <div className="legal mt-6">
         <p>
           CruxAI is a free, open-source learning tool. This policy explains what we
           collect and why. We keep it minimal on purpose.

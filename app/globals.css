@@ -75,6 +75,14 @@ body {
   background-attachment: fixed;
 }
 
+/* ---------- theme-aware legal/long-form text ---------- */
+.legal { color: var(--text-muted); line-height: 1.75; }
+.legal h2 { color: var(--text); font-size: 1.2rem; font-weight: 700; margin: 1.6rem 0 0.5rem; }
+.legal p { margin: 0 0 0.85rem; }
+.legal ul { list-style: disc; padding-left: 1.4rem; margin: 0 0 0.85rem; }
+.legal li { margin-bottom: 0.3rem; }
+.legal a { color: #818cf8; text-decoration: underline; text-underline-offset: 2px; }
+
 /* ---------- light-theme retint of dark-only utilities ----------
    The UI was authored dark-first with hardcoded utilities. Rather than
    prefixing every component, retint the common ones for readable contrast

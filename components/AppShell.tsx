@@ -11,7 +11,9 @@ import DemoVideo from '@/components/DemoVideo';
 const GITHUB_URL =
   process.env.NEXT_PUBLIC_GITHUB_URL ??
   'https://github.com/tamerlanmusayev/cruxai-frontend';
-const DONATE_URL = process.env.NEXT_PUBLIC_DONATE_URL;
+// Buy Me a Coffee page (claim the handle / override via env to your own).
+const DONATE_URL =
+  process.env.NEXT_PUBLIC_DONATE_URL ?? 'https://www.buymeacoffee.com/tamerlanmusayev';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { lang, setLang, t } = useT();
@@ -193,18 +195,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <span className="ml-auto text-[var(--text-muted)] transition group-hover:text-[var(--text)]">↗</span>
         </a>
 
-        {/* support / donate (optional) */}
-        {DONATE_URL && (
-          <a
-            href={DONATE_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-2.5 rounded-xl border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-sm font-medium text-amber-300 transition hover:border-amber-400/50"
-          >
-            <span>☕</span>
-            <span>{t('support.donate')}</span>
-          </a>
-        )}
+        {/* buy me a coffee */}
+        <a
+          href={DONATE_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-2.5 rounded-xl border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-sm font-semibold text-amber-300 transition hover:border-amber-400/60 hover:bg-amber-400/15"
+        >
+          <span>☕</span>
+          <span>{t('support.donate')}</span>
+        </a>
 
         {/* legal */}
         <div className="flex gap-3 px-1 text-[11px] text-[var(--text-muted)]">
