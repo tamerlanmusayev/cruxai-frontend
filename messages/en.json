@@ -60,7 +60,7 @@
   "reviews.minHint": "Please write at least {n} characters.",
   "rating.count": "{n} reviews",
   "home.title": "Master any book",
-  "home.subtitle": "Drop in a textbook. Get a citation-grounded summary, audio, and an adaptive quiz that hunts down exactly what you don't know yet.",
+  "home.subtitle": "Drop in a book — get a summary, quiz, and flashcards.",
   "home.f.summary": "Structured summary",
   "home.f.audio": "Audio",
   "home.f.quiz": "Adaptive quiz",

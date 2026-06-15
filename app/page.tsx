@@ -290,15 +290,17 @@ export default function HomePage() {
 
       {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
 
-      <div className="glass mx-auto mt-8 max-w-xl p-5 text-left text-sm text-slate-400">
-        <p className="font-medium text-slate-200">{t('home.tips.title')}</p>
-        <ul className="mt-2 list-disc space-y-1 pl-5">
+      <details className="mx-auto mt-6 max-w-xl text-left text-sm text-slate-400">
+        <summary className="cursor-pointer select-none text-center text-xs text-slate-500 hover:text-slate-300">
+          {t('home.tips.title')}
+        </summary>
+        <ul className="mt-3 list-disc space-y-1 pl-5">
           <li>{t('home.tips.1')}</li>
           <li>{t('home.tips.2')}</li>
           <li>{t('home.tips.3')}</li>
           <li>{t('home.tips.4', { mb: MAX_TOTAL_MB })}</li>
         </ul>
-      </div>
+      </details>
 
       <HowItWorksDemo />
 

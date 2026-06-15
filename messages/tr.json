@@ -50,7 +50,7 @@
   "reviews.minHint": "Lütfen en az {n} karakter yaz.",
   "rating.count": "{n} yorum",
   "home.title": "Her kitabı öğren",
-  "home.subtitle": "Bir ders kitabı yükle. Kaynağa dayalı özet, ses ve tam olarak bilmediklerini bulan uyarlanabilir test al.",
+  "home.subtitle": "Kitabı yükle — özet, test ve kart al.",
   "home.f.summary": "Yapılandırılmış özet",
   "home.f.audio": "Ses",
   "home.f.quiz": "Uyarlanabilir test",
