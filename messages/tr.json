@@ -179,5 +179,8 @@
   "home.examples": "Ya da hazır bir örneğe göz at — yükleme gerekmez",
   "doc.exampleNote": "Bu ücretsiz bir örnek. Test, kartlar ve sınav için kendi kitabını yükle.",
   "doc.exampleCta": "Kendiminkini oluştur →",
-  "common.loading": "Yükleniyor…"
+  "common.loading": "Yükleniyor…",
+  "lib.signInPrompt": "Kütüphaneni görmek için giriş yap",
+  "doc.saved": "Kaydedildi ✓",
+  "doc.done": "Bitti"
 }

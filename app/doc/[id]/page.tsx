@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { DocumentDetail, getDocument, updateSummary } from '@/lib/api';
@@ -17,11 +17,11 @@ export default function DocPage() {
   const [doc, setDoc] = useState<DocumentDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // inline editing of the generated summary
+  // inline editing of the generated summary (auto-saved)
   const [editing, setEditing] = useState(false);
   const [draftContent, setDraftContent] = useState('');
   const [draftKeys, setDraftKeys] = useState<string[]>([]);
-  const [saving, setSaving] = useState(false);
+  const [autoStatus, setAutoStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [saveErr, setSaveErr] = useState<string | null>(null);
 
   function startEdit() {
@@ -29,26 +29,37 @@ export default function DocPage() {
     setDraftContent(doc.summary.contentMd);
     setDraftKeys(doc.summary.keyPoints.length ? doc.summary.keyPoints : ['']);
     setSaveErr(null);
+    setAutoStatus('idle');
     setEditing(true);
   }
 
-  async function save() {
-    setSaving(true);
+  async function persist(close: boolean) {
+    setAutoStatus('saving');
     setSaveErr(null);
     try {
       const keyPoints = draftKeys.map((k) => k.trim()).filter(Boolean);
-      const updated = await updateSummary(id, {
-        contentMd: draftContent,
-        keyPoints,
-      });
+      const updated = await updateSummary(id, { contentMd: draftContent, keyPoints });
       setDoc(updated);
-      setEditing(false);
+      setAutoStatus('saved');
+      if (close) setEditing(false);
     } catch (e) {
       setSaveErr((e as Error).message);
-    } finally {
-      setSaving(false);
+      setAutoStatus('idle');
     }
   }
+
+  // Debounced auto-save: persist ~1s after the last edit while in edit mode.
+  useEffect(() => {
+    if (!editing || !doc?.summary) return;
+    const keyPoints = draftKeys.map((k) => k.trim()).filter(Boolean);
+    const dirty =
+      draftContent !== doc.summary.contentMd ||
+      JSON.stringify(keyPoints) !== JSON.stringify(doc.summary.keyPoints);
+    if (!dirty) return;
+    const tmr = setTimeout(() => void persist(false), 1000);
+    return () => clearTimeout(tmr);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftContent, draftKeys, editing]);
 
   useEffect(() => {
     let active = true;
@@ -117,19 +128,18 @@ export default function DocPage() {
           )}
           {editing && (
             <>
+              <span className="text-xs text-slate-400">
+                {autoStatus === 'saving'
+                  ? t('doc.saving')
+                  : autoStatus === 'saved'
+                    ? t('doc.saved')
+                    : ''}
+              </span>
               <button
-                onClick={() => setEditing(false)}
-                disabled={saving}
-                className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-medium text-slate-300 hover:border-white/25 disabled:opacity-50"
+                onClick={() => persist(true)}
+                className="btn-glow rounded-lg px-4 py-1.5 text-sm font-medium"
               >
-                {t('doc.cancel')}
-              </button>
-              <button
-                onClick={save}
-                disabled={saving}
-                className="btn-glow rounded-lg px-4 py-1.5 text-sm font-medium disabled:opacity-50"
-              >
-                {saving ? t('doc.saving') : t('doc.save')}
+                {t('doc.done')}
               </button>
             </>
           )}

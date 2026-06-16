@@ -2,6 +2,7 @@
 
 import { useEditor, EditorContent, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import Link from '@tiptap/extension-link';
 import { Markdown } from 'tiptap-markdown';
 
 /**
@@ -19,6 +20,7 @@ export default function MarkdownEditor({
     immediatelyRender: false, // Next.js SSR-safe
     extensions: [
       StarterKit.configure({ heading: { levels: [2, 3] } }),
+      Link.configure({ openOnClick: false, autolink: true }),
       Markdown.configure({ html: false, linkify: true, transformPastedText: true }),
     ],
     content: value,
@@ -41,6 +43,22 @@ export default function MarkdownEditor({
       <EditorContent editor={editor} />
     </div>
   );
+}
+
+/** Prompt for a URL and (un)set a link on the current selection. */
+function setLink(editor: Editor) {
+  if (editor.isActive('link')) {
+    editor.chain().focus().unsetLink().run();
+    return;
+  }
+  const prev = (editor.getAttributes('link').href as string) ?? '';
+  const url = window.prompt('URL', prev);
+  if (url === null) return;
+  if (url.trim() === '') {
+    editor.chain().focus().unsetLink().run();
+    return;
+  }
+  editor.chain().focus().extendMarkRange('link').setLink({ href: url.trim() }).run();
 }
 
 function Toolbar({ editor }: { editor: Editor }) {
@@ -88,6 +106,8 @@ function Toolbar({ editor }: { editor: Editor }) {
         onClick={() => editor.chain().focus().toggleBlockquote().run()} />
       <Btn label="</>" title="Code" active={editor.isActive('codeBlock')}
         onClick={() => editor.chain().focus().toggleCodeBlock().run()} />
+      <Btn label="🔗" title="Link" active={editor.isActive('link')}
+        onClick={() => setLink(editor)} />
       <span className="mx-1 h-5 w-px bg-slate-200" />
       <Btn label="↶" title="Undo" onClick={() => editor.chain().focus().undo().run()} />
       <Btn label="↷" title="Redo" onClick={() => editor.chain().focus().redo().run()} />

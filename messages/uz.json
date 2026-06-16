@@ -179,5 +179,8 @@
   "home.examples": "Yoki tayyor namunani oching — yuklamasdan",
   "doc.exampleNote": "Bu bepul namuna. Test, kartalar va imtihon uchun o‘z kitobingizni yuklang.",
   "doc.exampleCta": "O‘zimnikini yaratish →",
-  "common.loading": "Yuklanmoqda…"
+  "common.loading": "Yuklanmoqda…",
+  "lib.signInPrompt": "Kutubxonangizni ko‘rish uchun kiring",
+  "doc.saved": "Saqlandi ✓",
+  "doc.done": "Tayyor"
 }

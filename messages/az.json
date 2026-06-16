@@ -188,5 +188,8 @@
   "home.examples": "Və ya hazır nümunəyə bax — yükləmədən",
   "doc.exampleNote": "Bu pulsuz nümunədir. Test, kartlar və imtahan üçün öz kitabını yüklə.",
   "doc.exampleCta": "Öz konspektini yarat →",
-  "common.loading": "Yüklənir…"
+  "common.loading": "Yüklənir…",
+  "lib.signInPrompt": "Kitabxananı görmək üçün daxil ol",
+  "doc.saved": "Saxlanıldı ✓",
+  "doc.done": "Hazırdır"
 }

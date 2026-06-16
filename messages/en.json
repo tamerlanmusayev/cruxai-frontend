@@ -188,5 +188,8 @@
   "home.examples": "Or open a ready example — no upload needed",
   "doc.exampleNote": "This is a free example. Upload your own book to take the quiz, flashcards and exam.",
   "doc.exampleCta": "Make my own →",
-  "common.loading": "Loading…"
+  "common.loading": "Loading…",
+  "lib.signInPrompt": "Sign in to see your library",
+  "doc.saved": "Saved ✓",
+  "doc.done": "Done"
 }
