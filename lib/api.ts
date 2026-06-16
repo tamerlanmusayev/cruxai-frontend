@@ -275,14 +275,18 @@ export async function getBooksCount(): Promise<number> {
   return (await res.json()).count as number;
 }
 
-/** AI-curated reading list for a goal/topic. */
+/** AI-curated reading list for a goal/topic (requires a session token). */
 export async function recommendBooks(
   topic: string,
   lang?: string,
 ): Promise<BookRecommendation[]> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('cruxai_token') : null;
   const res = await fetch(`${API_URL}/books/recommend`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify({ topic, lang }),
   });
   if (!res.ok) throw new Error(`Recommendation failed (${res.status})`);

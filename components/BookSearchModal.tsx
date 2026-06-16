@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { BookHit, BookRecommendation, getBooksCount, recommendBooks, searchBooks } from '@/lib/api';
+import { ensureToken } from '@/lib/auth';
 import Modal from '@/components/Modal';
 import { useT } from '@/lib/i18n';
 
@@ -72,6 +73,7 @@ export default function BookSearchModal({ onClose, onUse, onOverview, initialTab
     if (topic.trim().length < 3 || recBusy) return;
     setRecBusy(true);
     try {
+      await ensureToken();
       setRecs(await recommendBooks(topic.trim(), lang));
     } catch {
       setRecs([]);
