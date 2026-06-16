@@ -185,5 +185,8 @@
   "auth.notConfigured": "Вход через Google ещё не настроен. Добавь NEXT_PUBLIC_GOOGLE_CLIENT_ID.",
   "more.menu": "Ещё",
   "more.language": "Язык",
-  "home.examples": "Или открой готовый пример — без загрузки"
+  "home.examples": "Или открой готовый пример — без загрузки",
+  "doc.exampleNote": "Это бесплатный пример. Загрузи свою книгу, чтобы пройти тест, карточки и экзамен.",
+  "doc.exampleCta": "Создать свой →",
+  "common.loading": "Загрузка…"
 }

@@ -24,6 +24,7 @@ export interface DocumentDetail {
   title: string;
   status: DocStatus;
   language: string | null;
+  isExample?: boolean;
   error: string | null;
   skipped: { name: string; reason: string }[] | null;
   summary: {

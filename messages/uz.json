@@ -176,5 +176,8 @@
   "auth.notConfigured": "Google orqali kirish hali sozlanmagan. NEXT_PUBLIC_GOOGLE_CLIENT_ID qo‘shing.",
   "more.menu": "Yana",
   "more.language": "Til",
-  "home.examples": "Yoki tayyor namunani oching — yuklamasdan"
+  "home.examples": "Yoki tayyor namunani oching — yuklamasdan",
+  "doc.exampleNote": "Bu bepul namuna. Test, kartalar va imtihon uchun o‘z kitobingizni yuklang.",
+  "doc.exampleCta": "O‘zimnikini yaratish →",
+  "common.loading": "Yuklanmoqda…"
 }

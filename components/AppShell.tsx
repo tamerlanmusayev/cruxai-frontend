@@ -240,7 +240,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 />
                 <div
                   role="menu"
-                  className="absolute bottom-full right-0 z-30 mb-1 max-h-[70vh] w-60 overflow-y-auto rounded-xl border border-[var(--border)] bg-[var(--bg)] p-1 shadow-2xl"
+                  className="absolute bottom-full right-0 z-30 mb-1 max-h-[70vh] w-60 max-w-[calc(100vw-2.5rem)] overflow-y-auto rounded-xl border border-[var(--border)] bg-[var(--bg)] p-1 shadow-2xl"
                 >
                   <Link
                     href="/stats"

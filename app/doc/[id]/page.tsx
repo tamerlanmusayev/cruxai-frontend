@@ -106,7 +106,7 @@ export default function DocPage() {
               {doc.language}
             </span>
           )}
-          {doc.summary && !editing && (
+          {doc.summary && !editing && !doc.isExample && (
             <button
               onClick={startEdit}
               className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-medium text-slate-200 hover:border-white/25"
@@ -252,32 +252,43 @@ export default function DocPage() {
         />
       )}
 
-      <div className="mt-10 flex flex-wrap justify-center gap-3">
-        <Link
-          href={`/doc/${doc.id}/flashcards`}
-          className="rounded-lg border border-white/10 bg-white/5 px-5 py-3 font-medium text-slate-200 hover:border-white/25"
-        >
-          {t('doc.flashcards')}
-        </Link>
-        <Link
-          href={`/doc/${doc.id}/graph`}
-          className="rounded-lg border border-white/10 bg-white/5 px-5 py-3 font-medium text-slate-200 hover:border-white/25"
-        >
-          {t('doc.graph')}
-        </Link>
-        <Link
-          href={`/doc/${doc.id}/exam`}
-          className="rounded-lg border border-white/10 bg-white/5 px-5 py-3 font-medium text-slate-200 hover:border-white/25"
-        >
-          {t('doc.exam')}
-        </Link>
-        <Link
-          href={`/doc/${doc.id}/quiz`}
-          className="btn-glow rounded-lg px-5 py-3 font-medium"
-        >
-          {t('doc.test')}
-        </Link>
-      </div>
+      {doc.isExample ? (
+        // Examples are a public, summary-only showcase — the quiz/flashcards/
+        // exam/graph are owner-scoped, so nudge visitors to make their own.
+        <div className="glass mt-10 p-6 text-center">
+          <p className="text-sm text-slate-400">{t('doc.exampleNote')}</p>
+          <Link href="/" className="btn-glow mt-4 inline-block rounded-lg px-6 py-3 font-medium">
+            {t('doc.exampleCta')}
+          </Link>
+        </div>
+      ) : (
+        <div className="mt-10 flex flex-wrap justify-center gap-3">
+          <Link
+            href={`/doc/${doc.id}/flashcards`}
+            className="rounded-lg border border-white/10 bg-white/5 px-5 py-3 font-medium text-slate-200 hover:border-white/25"
+          >
+            {t('doc.flashcards')}
+          </Link>
+          <Link
+            href={`/doc/${doc.id}/graph`}
+            className="rounded-lg border border-white/10 bg-white/5 px-5 py-3 font-medium text-slate-200 hover:border-white/25"
+          >
+            {t('doc.graph')}
+          </Link>
+          <Link
+            href={`/doc/${doc.id}/exam`}
+            className="rounded-lg border border-white/10 bg-white/5 px-5 py-3 font-medium text-slate-200 hover:border-white/25"
+          >
+            {t('doc.exam')}
+          </Link>
+          <Link
+            href={`/doc/${doc.id}/quiz`}
+            className="btn-glow rounded-lg px-5 py-3 font-medium"
+          >
+            {t('doc.test')}
+          </Link>
+        </div>
+      )}
     </article>
   );
 }

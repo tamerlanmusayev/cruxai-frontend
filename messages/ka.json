@@ -176,5 +176,8 @@
   "auth.notConfigured": "Google-ით შესვლა ჯერ არ არის კონფიგურირებული. დაამატე NEXT_PUBLIC_GOOGLE_CLIENT_ID.",
   "more.menu": "მეტი",
   "more.language": "ენა",
-  "home.examples": "ან გახსენი მზა მაგალითი — ატვირთვის გარეშე"
+  "home.examples": "ან გახსენი მზა მაგალითი — ატვირთვის გარეშე",
+  "doc.exampleNote": "ეს უფასო მაგალითია. ატვირთე შენი წიგნი, რომ გაიარო ტესტი, ბარათები და გამოცდა.",
+  "doc.exampleCta": "შევქმნა ჩემი →",
+  "common.loading": "იტვირთება…"
 }

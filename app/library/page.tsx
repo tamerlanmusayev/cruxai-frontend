@@ -65,6 +65,13 @@ export default function LibraryPage() {
 
       {error && <p className="mt-6 text-sm text-red-400">{error}</p>}
 
+      {!items && !error && (
+        <div className="glass mt-8 flex items-center justify-center gap-3 p-10 text-sm text-slate-400">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/10 border-t-brand" />
+          {t('common.loading')}
+        </div>
+      )}
+
       {items && items.length === 0 && (
         <div className="glass mt-8 p-10 text-center">
           <p className="text-slate-400">{t('lib.empty')}</p>

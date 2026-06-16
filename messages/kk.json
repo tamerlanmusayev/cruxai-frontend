@@ -176,5 +176,8 @@
   "auth.notConfigured": "Google арқылы кіру әлі бапталмаған. NEXT_PUBLIC_GOOGLE_CLIENT_ID қос.",
   "more.menu": "Тағы",
   "more.language": "Тіл",
-  "home.examples": "Немесе дайын мысалды аш — жүктемей-ақ"
+  "home.examples": "Немесе дайын мысалды аш — жүктемей-ақ",
+  "doc.exampleNote": "Бұл тегін мысал. Тест, карталар және емтихан үшін өз кітабыңды жүкте.",
+  "doc.exampleCta": "Өзімдікін жасау →",
+  "common.loading": "Жүктелуде…"
 }

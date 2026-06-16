@@ -185,5 +185,8 @@
   "auth.notConfigured": "Google ilə giriş hələ qurulmayıb. NEXT_PUBLIC_GOOGLE_CLIENT_ID əlavə et.",
   "more.menu": "Daha çox",
   "more.language": "Dil",
-  "home.examples": "Və ya hazır nümunəyə bax — yükləmədən"
+  "home.examples": "Və ya hazır nümunəyə bax — yükləmədən",
+  "doc.exampleNote": "Bu pulsuz nümunədir. Test, kartlar və imtahan üçün öz kitabını yüklə.",
+  "doc.exampleCta": "Öz konspektini yarat →",
+  "common.loading": "Yüklənir…"
 }
