@@ -8,6 +8,7 @@ import remarkGfm from 'remark-gfm';
 import { DocumentDetail, getDocument, updateSummary } from '@/lib/api';
 import SummaryActions from '@/components/SummaryActions';
 import AiProgress from '@/components/AiProgress';
+import MarkdownEditor from '@/components/MarkdownEditor';
 import { useT } from '@/lib/i18n';
 
 export default function DocPage() {
@@ -188,13 +189,7 @@ export default function DocPage() {
             </button>
 
             <p className="mb-2 mt-6 text-sm font-semibold text-slate-500">{t('doc.notes')}</p>
-            <textarea
-              value={draftContent}
-              onChange={(e) => setDraftContent(e.target.value)}
-              rows={24}
-              className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 font-mono text-sm leading-relaxed text-slate-900 outline-none focus:border-brand"
-            />
-            <p className="mt-1 text-xs text-slate-400">{t('doc.mdHint')}</p>
+            <MarkdownEditor value={draftContent} onChange={setDraftContent} />
           </section>
         ) : (
           <>
