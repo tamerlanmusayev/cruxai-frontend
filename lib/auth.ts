@@ -62,6 +62,25 @@ export async function googleLogin(credential: string): Promise<AuthUser> {
   return user;
 }
 
+/** Exchange a Telegram login-widget payload for our session token. */
+export async function telegramLogin(
+  payload: Record<string, unknown>,
+): Promise<AuthUser> {
+  const res = await fetch(`${API_URL}/auth/telegram`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ data: payload, anonToken: getToken() ?? undefined }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error((data as { message?: string }).message ?? 'Sign-in failed');
+  }
+  const { token, user } = (await res.json()) as { token: string; user: AuthUser };
+  localStorage.setItem(KEY, token);
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+  return user;
+}
+
 /** Drop the current session; a fresh anonymous token is minted on next use. */
 export function signOut(): void {
   if (typeof window === 'undefined') return;

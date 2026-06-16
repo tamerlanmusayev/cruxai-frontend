@@ -8,12 +8,13 @@ import {
   useRef,
   useState,
 } from 'react';
-import { AuthUser, getUser, googleLogin, signOut } from './auth';
+import { AuthUser, getUser, googleLogin, signOut, telegramLogin } from './auth';
 import { useT } from './i18n';
 import Modal from '@/components/Modal';
 
 const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '';
 const GIS_SRC = 'https://accounts.google.com/gsi/client';
+const TG_BOT = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME ?? '';
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -46,6 +47,7 @@ interface GoogleId {
 declare global {
   interface Window {
     google?: GoogleId;
+    onTelegramAuth?: (user: Record<string, unknown>) => void;
   }
 }
 
@@ -115,14 +117,13 @@ function LoginModal({
 }) {
   const { t } = useT();
   const btnRef = useRef<HTMLDivElement>(null);
+  const tgRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
+  // Google Identity Services button.
   useEffect(() => {
-    if (!CLIENT_ID) {
-      setError('not-configured');
-      return;
-    }
+    if (!CLIENT_ID || !btnRef.current) return;
     let cancelled = false;
     loadGis()
       .then(() => {
@@ -133,8 +134,7 @@ function LoginModal({
             setBusy(true);
             setError(null);
             try {
-              const u = await googleLogin(credential);
-              onSuccess(u);
+              onSuccess(await googleLogin(credential));
             } catch (e) {
               setError((e as Error).message);
               setBusy(false);
@@ -155,6 +155,34 @@ function LoginModal({
     };
   }, [onSuccess]);
 
+  // Telegram login widget (renders Telegram's own button + global callback).
+  useEffect(() => {
+    if (!TG_BOT || !tgRef.current) return;
+    window.onTelegramAuth = async (user) => {
+      setBusy(true);
+      setError(null);
+      try {
+        onSuccess(await telegramLogin(user));
+      } catch (e) {
+        setError((e as Error).message);
+        setBusy(false);
+      }
+    };
+    const s = document.createElement('script');
+    s.src = 'https://telegram.org/js/telegram-widget.js?22';
+    s.async = true;
+    s.setAttribute('data-telegram-login', TG_BOT);
+    s.setAttribute('data-size', 'large');
+    s.setAttribute('data-radius', '10');
+    s.setAttribute('data-onauth', 'onTelegramAuth(user)');
+    tgRef.current.appendChild(s);
+    return () => {
+      delete window.onTelegramAuth;
+    };
+  }, [onSuccess]);
+
+  const nothingConfigured = !CLIENT_ID && !TG_BOT;
+
   return (
     <Modal onClose={onClose} className="max-w-sm">
       <div className="text-center">
@@ -164,18 +192,18 @@ function LoginModal({
         <h2 className="text-lg font-bold text-ink">{t('auth.title')}</h2>
         <p className="mt-1.5 text-sm text-[var(--text-muted)]">{t('auth.hint')}</p>
 
-        <div className="mt-6 flex min-h-[44px] justify-center">
-          {busy ? (
-            <span className="text-sm text-[var(--text-muted)]">…</span>
-          ) : (
-            <div ref={btnRef} />
-          )}
+        <div className="mt-6 flex min-h-[44px] flex-col items-center gap-3">
+          {CLIENT_ID && <div ref={btnRef} />}
+          {TG_BOT && <div ref={tgRef} />}
+          {busy && <span className="text-sm text-[var(--text-muted)]">…</span>}
         </div>
 
-        {error === 'not-configured' ? (
+        {nothingConfigured ? (
           <p className="mt-4 text-xs text-amber-400">{t('auth.notConfigured')}</p>
         ) : (
-          error && <p className="mt-4 text-xs text-red-400">{error}</p>
+          error && error !== 'not-configured' && (
+            <p className="mt-4 text-xs text-red-400">{error}</p>
+          )
         )}
 
         <p className="mt-5 text-[11px] leading-relaxed text-[var(--text-muted)]">
