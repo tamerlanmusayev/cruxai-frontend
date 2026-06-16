@@ -175,5 +175,6 @@
   "auth.privacy": "Кітапханаңды сақтау үшін тек Google поштасын қолданамыз. Ештеңе бөліспейміз.",
   "auth.notConfigured": "Google арқылы кіру әлі бапталмаған. NEXT_PUBLIC_GOOGLE_CLIENT_ID қос.",
   "more.menu": "Тағы",
-  "more.language": "Тіл"
+  "more.language": "Тіл",
+  "home.examples": "Немесе дайын мысалды аш — жүктемей-ақ"
 }

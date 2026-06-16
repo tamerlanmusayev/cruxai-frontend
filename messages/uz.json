@@ -175,5 +175,6 @@
   "auth.privacy": "Faqat kutubxonangizni saqlash uchun Google pochtangizdan foydalanamiz. Hech narsa ulashilmaydi.",
   "auth.notConfigured": "Google orqali kirish hali sozlanmagan. NEXT_PUBLIC_GOOGLE_CLIENT_ID qo‘shing.",
   "more.menu": "Yana",
-  "more.language": "Til"
+  "more.language": "Til",
+  "home.examples": "Yoki tayyor namunani oching — yuklamasdan"
 }

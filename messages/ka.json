@@ -175,5 +175,6 @@
   "auth.privacy": "ვიყენებთ მხოლოდ შენს Google ელფოსტას ბიბლიოთეკის შესანახად. არაფერი ზიარდება.",
   "auth.notConfigured": "Google-ით შესვლა ჯერ არ არის კონფიგურირებული. დაამატე NEXT_PUBLIC_GOOGLE_CLIENT_ID.",
   "more.menu": "მეტი",
-  "more.language": "ენა"
+  "more.language": "ენა",
+  "home.examples": "ან გახსენი მზა მაგალითი — ატვირთვის გარეშე"
 }

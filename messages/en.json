@@ -184,5 +184,6 @@
   "auth.privacy": "We only use your Google email to save your library. Nothing is shared.",
   "auth.notConfigured": "Google sign-in isn’t set up yet. Add NEXT_PUBLIC_GOOGLE_CLIENT_ID.",
   "more.menu": "More",
-  "more.language": "Language"
+  "more.language": "Language",
+  "home.examples": "Or open a ready example — no upload needed"
 }

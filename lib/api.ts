@@ -303,6 +303,23 @@ export async function createReview(
   return postJson<Review>('/reviews', body, token);
 }
 
+export interface ExampleItem {
+  id: string;
+  title: string;
+  language: string | null;
+}
+
+/** Curated public sample documents for the home page (no auth). */
+export async function getExamples(): Promise<ExampleItem[]> {
+  try {
+    const res = await fetch(`${API_URL}/documents/examples`);
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
+}
+
 export const LIBRARY_PAGE = 10;
 
 export async function getLibrary(skip = 0, take = LIBRARY_PAGE): Promise<LibraryItem[]> {

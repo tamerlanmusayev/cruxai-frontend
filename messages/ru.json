@@ -184,5 +184,6 @@
   "auth.privacy": "Мы используем только email из Google, чтобы сохранить вашу библиотеку. Ничего не передаём третьим лицам.",
   "auth.notConfigured": "Вход через Google ещё не настроен. Добавь NEXT_PUBLIC_GOOGLE_CLIENT_ID.",
   "more.menu": "Ещё",
-  "more.language": "Язык"
+  "more.language": "Язык",
+  "home.examples": "Или открой готовый пример — без загрузки"
 }

@@ -1,8 +1,15 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
-import { createFromSources, overviewBook, uploadFiles } from '@/lib/api';
+import { useEffect, useRef, useState } from 'react';
+import {
+  ExampleItem,
+  createFromSources,
+  getExamples,
+  overviewBook,
+  uploadFiles,
+} from '@/lib/api';
 import { ensureToken } from '@/lib/auth';
 import { useAuth } from '@/lib/auth-context';
 import { getRecaptchaToken } from '@/lib/recaptcha';
@@ -48,6 +55,11 @@ export default function HomePage() {
     | { kind: 'source'; url: string; name: string; label: string }
     | { kind: 'overview'; title: string; label: string };
   const [pending, setPending] = useState<Pending | null>(null);
+  const [examples, setExamples] = useState<ExampleItem[]>([]);
+
+  useEffect(() => {
+    getExamples().then(setExamples).catch(() => {});
+  }, []);
 
 
   const valid = files.filter((f) => ALLOWED.includes(extOf(f.name)));
@@ -237,6 +249,29 @@ export default function HomePage() {
           🔗 {t('link.import')}
         </button>
       </div>
+
+      {examples.length > 0 && (
+        <div className="mx-auto mt-6 max-w-xl">
+          <p className="mb-2 text-xs text-slate-500">{t('home.examples')}</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {examples.map((ex) => (
+              <Link
+                key={ex.id}
+                href={`/doc/${ex.id}`}
+                className="glass flex items-center gap-2 px-3 py-2 text-sm text-slate-200 transition hover:border-white/25"
+              >
+                <span aria-hidden>📖</span>
+                <span className="max-w-[14rem] truncate">{ex.title}</span>
+                {ex.language && (
+                  <span className="rounded-full border border-white/10 bg-white/5 px-1.5 text-[10px] uppercase text-slate-400">
+                    {ex.language}
+                  </span>
+                )}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {files.length > 0 && (
         <div className="glass mx-auto mt-5 max-w-xl p-4 text-left">

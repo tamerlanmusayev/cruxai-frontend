@@ -175,5 +175,6 @@
   "auth.privacy": "Yalnızca kütüphaneni kaydetmek için Google e-postanı kullanırız. Hiçbir şey paylaşılmaz.",
   "auth.notConfigured": "Google ile giriş henüz ayarlanmadı. NEXT_PUBLIC_GOOGLE_CLIENT_ID ekle.",
   "more.menu": "Daha fazla",
-  "more.language": "Dil"
+  "more.language": "Dil",
+  "home.examples": "Ya da hazır bir örneğe göz at — yükleme gerekmez"
 }
