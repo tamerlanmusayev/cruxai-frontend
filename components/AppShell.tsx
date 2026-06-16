@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { LANGS, useT } from '@/lib/i18n';
 import { useTheme } from '@/lib/theme';
 import { useOnline } from '@/lib/socket';
@@ -40,6 +40,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     setOpen(false);
     setMoreOpen(false);
   }, [pathname]);
+
+  // The mobile drawer is full-screen, so close it on Escape (no backdrop to tap).
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
+
+  // Swipe-left to dismiss the full-screen drawer.
+  const touchStartX = useRef<number | null>(null);
 
   // Refresh today's generation quota on every navigation (cheap; reflects a
   // just-created note when the user lands on /doc/:id or /library).
@@ -333,13 +344,33 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </button>
       </header>
 
-      {/* mobile drawer */}
+      {/* mobile drawer — full screen */}
       {open && (
-        <div className="fixed inset-0 z-40 md:hidden">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 w-72 max-w-[85%] overflow-y-auto border-r border-[var(--border)] bg-[var(--bg)] px-3 py-6">
-            {SidebarBody}
-          </aside>
+        <div
+          className="fixed inset-0 z-40 overflow-y-auto bg-[var(--bg)] px-4 py-6 animate-[fade-in_0.15s_ease] md:hidden"
+          onTouchStart={(e) => {
+            touchStartX.current = e.touches[0].clientX;
+          }}
+          onTouchMove={(e) => {
+            if (
+              touchStartX.current !== null &&
+              touchStartX.current - e.touches[0].clientX > 60
+            ) {
+              setOpen(false);
+              touchStartX.current = null;
+            }
+          }}
+        >
+          <button
+            onClick={() => setOpen(false)}
+            aria-label="Close menu"
+            className="absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-lg text-[var(--text-muted)] transition hover:bg-white/10 hover:text-[var(--text)]"
+          >
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+          {SidebarBody}
         </div>
       )}
 
