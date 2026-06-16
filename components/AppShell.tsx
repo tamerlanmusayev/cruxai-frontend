@@ -58,8 +58,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   // Swipe-left to dismiss the full-screen drawer.
   const touchStartX = useRef<number | null>(null);
 
-  // Refresh today's generation quota on every navigation (cheap; reflects a
-  // just-created note when the user lands on /doc/:id or /library).
+  // Refresh today's token budget on navigation AND on account change
+  // (login / logout / account switch all change `user` → refetch for the
+  // current userId, so the chip never shows another account's number).
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -74,7 +75,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [pathname]);
+  }, [pathname, user]);
 
   // Keep the browser tab title in sync with the current page.
   useEffect(() => {
