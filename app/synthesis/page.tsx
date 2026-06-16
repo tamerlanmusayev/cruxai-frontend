@@ -5,11 +5,13 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { LibraryItem, Synthesis, getLibrary, runSynthesis } from '@/lib/api';
 import { ensureToken } from '@/lib/auth';
+import { useAuth } from '@/lib/auth-context';
 import AiProgress from '@/components/AiProgress';
 import { useT } from '@/lib/i18n';
 
 export default function SynthesisPage() {
   const { t } = useT();
+  const { signedIn, openLogin } = useAuth();
   const [items, setItems] = useState<LibraryItem[]>([]);
   const [picked, setPicked] = useState<string[]>([]);
   const [query, setQuery] = useState('');
@@ -18,11 +20,12 @@ export default function SynthesisPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!signedIn) return;
     ensureToken()
       .then(() => getLibrary(0, 50))
       .then((l) => setItems(l.filter((d) => d.status === 'READY')))
       .catch((e) => setError((e as Error).message));
-  }, []);
+  }, [signedIn]);
 
   function toggle(id: string) {
     setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
@@ -51,6 +54,18 @@ export default function SynthesisPage() {
 
       {error && <p className="mt-6 text-sm text-red-400">{error}</p>}
 
+      {!signedIn ? (
+        <div className="glass mt-8 p-10 text-center">
+          <p className="text-slate-400">{t('auth.title')}</p>
+          <button
+            onClick={() => openLogin()}
+            className="btn-glow mt-5 inline-block rounded-lg px-6 py-3 font-medium"
+          >
+            {t('auth.signIn')}
+          </button>
+        </div>
+      ) : (
+       <>
       <div className="glass mt-6 p-5">
         <p className="mb-2 text-sm text-slate-400">{t('syn.pick')}</p>
         <div className="space-y-2">
@@ -113,6 +128,8 @@ export default function SynthesisPage() {
             </div>
           )}
         </div>
+      )}
+       </>
       )}
     </div>
   );

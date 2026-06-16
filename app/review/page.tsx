@@ -4,20 +4,23 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Flashcard, getDueFlashcards, reviewFlashcard } from '@/lib/api';
 import { ensureToken } from '@/lib/auth';
+import { useAuth } from '@/lib/auth-context';
 import { useT } from '@/lib/i18n';
 import FlashcardStudy from '@/components/FlashcardStudy';
 
 export default function ReviewPage() {
   const { t } = useT();
+  const { signedIn, openLogin } = useAuth();
   const [cards, setCards] = useState<Flashcard[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!signedIn) return;
     ensureToken()
       .then(getDueFlashcards)
       .then(setCards)
       .catch((e) => setError((e as Error).message));
-  }, []);
+  }, [signedIn]);
 
   async function handleGrade(cardId: string, grade: number) {
     await ensureToken();
@@ -31,24 +34,38 @@ export default function ReviewPage() {
 
       {error && <p className="mt-6 text-sm text-red-400">{error}</p>}
 
-      {!cards && !error && (
-        <div className="glass mt-8 flex items-center justify-center gap-3 p-10 text-sm text-slate-400">
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/10 border-t-brand" />
-          {t('common.loading')}
-        </div>
-      )}
-
-      {cards && cards.length === 0 && (
+      {!signedIn ? (
         <div className="glass mt-8 p-10 text-center">
-          <p className="text-slate-400">{t('fc.noDue')}</p>
-          <Link href="/library" className="btn-glow mt-5 inline-block rounded-lg px-6 py-3 font-medium">
-            {t('nav.library')}
-          </Link>
+          <p className="text-slate-400">{t('auth.title')}</p>
+          <button
+            onClick={() => openLogin()}
+            className="btn-glow mt-5 inline-block rounded-lg px-6 py-3 font-medium"
+          >
+            {t('auth.signIn')}
+          </button>
         </div>
-      )}
+      ) : (
+        <>
+          {!cards && !error && (
+            <div className="glass mt-8 flex items-center justify-center gap-3 p-10 text-sm text-slate-400">
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/10 border-t-brand" />
+              {t('common.loading')}
+            </div>
+          )}
 
-      {cards && cards.length > 0 && (
-        <FlashcardStudy cards={cards} onGrade={handleGrade} />
+          {cards && cards.length === 0 && (
+            <div className="glass mt-8 p-10 text-center">
+              <p className="text-slate-400">{t('fc.noDue')}</p>
+              <Link href="/library" className="btn-glow mt-5 inline-block rounded-lg px-6 py-3 font-medium">
+                {t('nav.library')}
+              </Link>
+            </div>
+          )}
+
+          {cards && cards.length > 0 && (
+            <FlashcardStudy cards={cards} onGrade={handleGrade} />
+          )}
+        </>
       )}
     </div>
   );
