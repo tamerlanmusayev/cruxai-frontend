@@ -27,19 +27,18 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const { lang, setLang, t } = useT();
   const { theme, toggle } = useTheme();
   const { user, signedIn, openLogin, logout } = useAuth();
-  const online = useOnline();
+  useOnline(); // keep the presence subscription alive (count shown on /stats)
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [langOpen, setLangOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [usage, setUsage] = useState<UsageStatus | null>(null);
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
-  const currentLang = LANGS.find((l) => l.code === lang) ?? LANGS[2];
 
   // Close the mobile drawer / language menu whenever the route changes.
   useEffect(() => {
     setOpen(false);
-    setLangOpen(false);
+    setMoreOpen(false);
   }, [pathname]);
 
   // Refresh today's generation quota on every navigation (cheap; reflects a
@@ -105,13 +104,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <span className="grad-text">CruxAI</span>
       </Link>
 
-      {online > 0 && (
-        <span className="mt-3 flex items-center gap-1.5 px-3 text-xs text-emerald-400">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-          {online} online
-        </span>
-      )}
-
       <Link
         href="/"
         className="btn-glow mt-6 flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold"
@@ -136,128 +128,35 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         ))}
       </nav>
 
-      {/* secondary — not part of the main flow */}
-      <Link
-        href="/stats"
-        aria-current={isActive('/stats') ? 'page' : undefined}
-        className={`mb-3 ${navLinkClass('/stats')}`}
-      >
-        <span aria-hidden className="text-base">📊</span>
-        <span>{t('nav.stats')}</span>
-      </Link>
-
-      {usage && (
-        <div className="mb-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-[var(--text-muted)]">{t('usage.label')}</span>
-            <span
-              className={`font-semibold tabular-nums ${
-                usage.remaining < usage.fullFlow ? 'text-amber-400' : 'text-[var(--text)]'
-              }`}
-            >
-              {fmtTokens(usage.remaining)} / {fmtTokens(usage.limit)}
-            </span>
-          </div>
-          <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-[var(--surface-2)]">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-fuchsia-500 transition-all"
-              style={{ width: `${Math.max(0, (usage.remaining / usage.limit) * 100)}%` }}
-            />
-          </div>
-        </div>
-      )}
-
       <div className="space-y-2 border-t border-[var(--border)] pt-3">
-        {/* account — Google sign-in / signed-in chip */}
-        {signedIn && user ? (
-          <div className="flex items-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2">
-            {user.picture ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={user.picture}
-                alt=""
-                referrerPolicy="no-referrer"
-                className="h-7 w-7 shrink-0 rounded-full"
-              />
-            ) : (
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[var(--surface-2)] text-xs font-semibold text-[var(--text)]">
-                {(user.name ?? user.email ?? '?').slice(0, 1).toUpperCase()}
-              </span>
-            )}
-            <span className="min-w-0 flex-1 truncate text-sm text-[var(--text)]">
-              {user.name ?? user.email}
-            </span>
-            <button
-              onClick={logout}
-              aria-label={t('auth.signOut')}
-              title={t('auth.signOut')}
-              className="shrink-0 text-[var(--text-muted)] transition hover:text-[var(--text)]"
-            >
-              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
-              </svg>
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => openLogin()}
-            className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--text)] transition hover:border-[var(--border-strong)]"
+        {/* AI-token budget — thin line; full figure on hover */}
+        {usage && (
+          <div
+            className="px-1 pb-0.5"
+            title={`${t('usage.label')}: ${fmtTokens(usage.remaining)} / ${fmtTokens(usage.limit)}`}
           >
-            <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden>
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z" />
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0012 23z" />
-              <path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 010-4.2V7.06H2.18a11 11 0 000 9.88l3.66-2.84z" />
-              <path fill="#EA4335" d="M12 4.75c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.46 1.46 14.97.5 12 .5A11 11 0 002.18 7.06l3.66 2.84C6.71 7.3 9.14 4.75 12 4.75z" />
-            </svg>
-            {t('auth.signIn')}
-          </button>
+            <div className="flex items-center justify-between text-[11px]">
+              <span className="text-[var(--text-muted)]">{t('usage.label')}</span>
+              <span
+                className={`tabular-nums ${
+                  usage.remaining < usage.fullFlow
+                    ? 'text-amber-400'
+                    : 'text-[var(--text-muted)]'
+                }`}
+              >
+                {fmtTokens(usage.remaining)}
+              </span>
+            </div>
+            <div className="mt-1 h-1 overflow-hidden rounded-full bg-[var(--surface-2)]">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-fuchsia-500"
+                style={{ width: `${Math.max(0, (usage.remaining / usage.limit) * 100)}%` }}
+              />
+            </div>
+          </div>
         )}
 
-        {/* language dropdown */}
-        <div className="relative">
-          <button
-            onClick={() => setLangOpen((o) => !o)}
-            aria-haspopup="listbox"
-            aria-expanded={langOpen}
-            className="flex w-full items-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--text-muted)] transition hover:border-[var(--border-strong)] hover:text-[var(--text)]"
-          >
-            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-              <circle cx="12" cy="12" r="9" />
-              <path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18" />
-            </svg>
-            <span className="text-[var(--text)]">{currentLang.native}</span>
-            <span className={`ml-auto text-xs transition ${langOpen ? 'rotate-180' : ''}`}>▾</span>
-          </button>
-          {langOpen && (
-            <div
-              role="listbox"
-              className="absolute bottom-full left-0 right-0 z-20 mb-1 max-h-64 overflow-y-auto rounded-xl border border-[var(--border)] bg-[var(--bg)] p-1 shadow-2xl"
-            >
-              {LANGS.map((l) => (
-                <button
-                  key={l.code}
-                  role="option"
-                  aria-selected={lang === l.code}
-                  onClick={() => {
-                    setLang(l.code);
-                    setLangOpen(false);
-                  }}
-                  className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition ${
-                    lang === l.code
-                      ? 'bg-[var(--surface-2)] font-semibold text-[var(--text)]'
-                      : 'text-[var(--text-muted)] hover:bg-[var(--surface)] hover:text-[var(--text)]'
-                  }`}
-                >
-                  <span className="w-7 text-xs font-semibold opacity-70">{l.label}</span>
-                  <span>{l.native}</span>
-                  {lang === l.code && <span className="ml-auto text-brand">✓</span>}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* buy me a coffee — the one accent action */}
+        {/* buy me a coffee — the one bright accent, kept visible */}
         <a
           href={DONATE_URL}
           target="_blank"
@@ -268,47 +167,144 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <span>{t('support.donate')}</span>
         </a>
 
-        {/* compact icon row: theme + GitHub */}
-        <div className="flex gap-2">
-          <button
-            onClick={toggle}
-            aria-label={theme === 'dark' ? t('theme.light') : t('theme.dark')}
-            title={theme === 'dark' ? t('theme.light') : t('theme.dark')}
-            className="grid h-9 flex-1 place-items-center rounded-lg border border-[var(--border)] text-[var(--text-muted)] transition hover:border-[var(--border-strong)] hover:text-[var(--text)]"
-          >
-            {theme === 'dark' ? (
-              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <circle cx="12" cy="12" r="4" />
-                <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" />
+        {/* account + a single "more" menu for everything secondary */}
+        <div className="flex items-center gap-2">
+          {signedIn && user ? (
+            <div className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2">
+              {user.picture ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={user.picture}
+                  alt=""
+                  referrerPolicy="no-referrer"
+                  className="h-7 w-7 shrink-0 rounded-full"
+                />
+              ) : (
+                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[var(--surface-2)] text-xs font-semibold text-[var(--text)]">
+                  {(user.name ?? user.email ?? '?').slice(0, 1).toUpperCase()}
+                </span>
+              )}
+              <span className="min-w-0 flex-1 truncate text-sm text-[var(--text)]">
+                {user.name ?? user.email}
+              </span>
+              <button
+                onClick={logout}
+                aria-label={t('auth.signOut')}
+                title={t('auth.signOut')}
+                className="shrink-0 text-[var(--text-muted)] transition hover:text-[var(--text)]"
+              >
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
+                </svg>
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => openLogin()}
+              className="flex min-w-0 flex-1 items-center justify-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--text)] transition hover:border-[var(--border-strong)]"
+            >
+              <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden>
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z" />
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0012 23z" />
+                <path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 010-4.2V7.06H2.18a11 11 0 000 9.88l3.66-2.84z" />
+                <path fill="#EA4335" d="M12 4.75c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.46 1.46 14.97.5 12 .5A11 11 0 002.18 7.06l3.66 2.84C6.71 7.3 9.14 4.75 12 4.75z" />
               </svg>
-            ) : (
-              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" />
-              </svg>
-            )}
-          </button>
-          <a
-            href={GITHUB_URL}
-            target="_blank"
-            rel="noreferrer"
-            aria-label="GitHub"
-            title="GitHub"
-            className="grid h-9 flex-1 place-items-center rounded-lg border border-[var(--border)] text-[var(--text-muted)] transition hover:border-[var(--border-strong)] hover:text-[var(--text)]"
-          >
-            <svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor" aria-hidden>
-              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z" />
-            </svg>
-          </a>
-        </div>
+              {t('auth.signIn')}
+            </button>
+          )}
 
-        {/* tagline + legal — one quiet line */}
-        <p className="px-1 pt-1 text-[11px] leading-relaxed text-[var(--text-muted)]">
-          <Link href="/privacy" className="hover:text-[var(--text)]">Privacy</Link>
-          {' · '}
-          <Link href="/terms" className="hover:text-[var(--text)]">Terms</Link>
-          {' · '}
-          {t('footer.tagline')}
-        </p>
+          {/* "more" — Stats, theme, language, GitHub, legal all live here */}
+          <div className="relative shrink-0">
+            <button
+              onClick={() => setMoreOpen((o) => !o)}
+              aria-haspopup="menu"
+              aria-expanded={moreOpen}
+              aria-label={t('more.menu')}
+              title={t('more.menu')}
+              className="grid h-[42px] w-10 place-items-center rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--text-muted)] transition hover:border-[var(--border-strong)] hover:text-[var(--text)]"
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden>
+                <circle cx="5" cy="12" r="1.7" />
+                <circle cx="12" cy="12" r="1.7" />
+                <circle cx="19" cy="12" r="1.7" />
+              </svg>
+            </button>
+
+            {moreOpen && (
+              <>
+                <button
+                  aria-hidden
+                  tabIndex={-1}
+                  onClick={() => setMoreOpen(false)}
+                  className="fixed inset-0 z-20 cursor-default"
+                />
+                <div
+                  role="menu"
+                  className="absolute bottom-full right-0 z-30 mb-1 max-h-[70vh] w-60 overflow-y-auto rounded-xl border border-[var(--border)] bg-[var(--bg)] p-1 shadow-2xl"
+                >
+                  <Link
+                    href="/stats"
+                    onClick={() => setMoreOpen(false)}
+                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--surface)] hover:text-[var(--text)]"
+                  >
+                    <span aria-hidden>📊</span>
+                    <span>{t('nav.stats')}</span>
+                  </Link>
+                  <button
+                    onClick={toggle}
+                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--surface)] hover:text-[var(--text)]"
+                  >
+                    <span aria-hidden>{theme === 'dark' ? '☀️' : '🌙'}</span>
+                    <span>{theme === 'dark' ? t('theme.light') : t('theme.dark')}</span>
+                  </button>
+
+                  <div className="my-1 border-t border-[var(--border)]" />
+                  <p className="px-3 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+                    {t('more.language')}
+                  </p>
+                  {LANGS.map((l) => (
+                    <button
+                      key={l.code}
+                      onClick={() => {
+                        setLang(l.code);
+                        setMoreOpen(false);
+                      }}
+                      className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition ${
+                        lang === l.code
+                          ? 'bg-[var(--surface-2)] font-semibold text-[var(--text)]'
+                          : 'text-[var(--text-muted)] hover:bg-[var(--surface)] hover:text-[var(--text)]'
+                      }`}
+                    >
+                      <span className="w-7 text-xs font-semibold opacity-70">{l.label}</span>
+                      <span>{l.native}</span>
+                      {lang === l.code && <span className="ml-auto text-brand">✓</span>}
+                    </button>
+                  ))}
+
+                  <div className="my-1 border-t border-[var(--border)]" />
+                  <a
+                    href={GITHUB_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--surface)] hover:text-[var(--text)]"
+                  >
+                    <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden>
+                      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z" />
+                    </svg>
+                    <span>GitHub</span>
+                  </a>
+                  <p className="px-3 pb-1 pt-1.5 text-[11px] leading-relaxed text-[var(--text-muted)]">
+                    <Link href="/privacy" className="hover:text-[var(--text)]">Privacy</Link>
+                    {' · '}
+                    <Link href="/terms" className="hover:text-[var(--text)]">Terms</Link>
+                    {' · '}
+                    {t('footer.tagline')}
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

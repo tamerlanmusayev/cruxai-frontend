@@ -173,5 +173,7 @@
   "auth.title": "გასაგრძელებლად შედი",
   "auth.hint": "შექმენი უფასო ანგარიში კონსპექტების გენერაციისა და ბიბლიოთეკის შესანახად.",
   "auth.privacy": "ვიყენებთ მხოლოდ შენს Google ელფოსტას ბიბლიოთეკის შესანახად. არაფერი ზიარდება.",
-  "auth.notConfigured": "Google-ით შესვლა ჯერ არ არის კონფიგურირებული. დაამატე NEXT_PUBLIC_GOOGLE_CLIENT_ID."
+  "auth.notConfigured": "Google-ით შესვლა ჯერ არ არის კონფიგურირებული. დაამატე NEXT_PUBLIC_GOOGLE_CLIENT_ID.",
+  "more.menu": "მეტი",
+  "more.language": "ენა"
 }

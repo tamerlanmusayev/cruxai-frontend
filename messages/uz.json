@@ -173,5 +173,7 @@
   "auth.title": "Davom etish uchun kiring",
   "auth.hint": "Konspekt yaratish va kutubxonangizni saqlash uchun bepul hisob yarating.",
   "auth.privacy": "Faqat kutubxonangizni saqlash uchun Google pochtangizdan foydalanamiz. Hech narsa ulashilmaydi.",
-  "auth.notConfigured": "Google orqali kirish hali sozlanmagan. NEXT_PUBLIC_GOOGLE_CLIENT_ID qo‘shing."
+  "auth.notConfigured": "Google orqali kirish hali sozlanmagan. NEXT_PUBLIC_GOOGLE_CLIENT_ID qo‘shing.",
+  "more.menu": "Yana",
+  "more.language": "Til"
 }

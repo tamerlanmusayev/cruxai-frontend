@@ -173,5 +173,7 @@
   "auth.title": "Devam etmek için giriş yap",
   "auth.hint": "Not oluşturmak ve kütüphaneni saklamak için ücretsiz hesabını oluştur.",
   "auth.privacy": "Yalnızca kütüphaneni kaydetmek için Google e-postanı kullanırız. Hiçbir şey paylaşılmaz.",
-  "auth.notConfigured": "Google ile giriş henüz ayarlanmadı. NEXT_PUBLIC_GOOGLE_CLIENT_ID ekle."
+  "auth.notConfigured": "Google ile giriş henüz ayarlanmadı. NEXT_PUBLIC_GOOGLE_CLIENT_ID ekle.",
+  "more.menu": "Daha fazla",
+  "more.language": "Dil"
 }

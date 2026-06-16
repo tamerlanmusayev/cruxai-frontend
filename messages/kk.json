@@ -173,5 +173,7 @@
   "auth.title": "Жалғастыру үшін кіріңіз",
   "auth.hint": "Конспект жасау және кітапханаңды сақтау үшін тегін аккаунт жаса.",
   "auth.privacy": "Кітапханаңды сақтау үшін тек Google поштасын қолданамыз. Ештеңе бөліспейміз.",
-  "auth.notConfigured": "Google арқылы кіру әлі бапталмаған. NEXT_PUBLIC_GOOGLE_CLIENT_ID қос."
+  "auth.notConfigured": "Google арқылы кіру әлі бапталмаған. NEXT_PUBLIC_GOOGLE_CLIENT_ID қос.",
+  "more.menu": "Тағы",
+  "more.language": "Тіл"
 }

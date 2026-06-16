@@ -182,5 +182,7 @@
   "auth.title": "Sign in to continue",
   "auth.hint": "Create your free account to generate notes and keep your library.",
   "auth.privacy": "We only use your Google email to save your library. Nothing is shared.",
-  "auth.notConfigured": "Google sign-in isn’t set up yet. Add NEXT_PUBLIC_GOOGLE_CLIENT_ID."
+  "auth.notConfigured": "Google sign-in isn’t set up yet. Add NEXT_PUBLIC_GOOGLE_CLIENT_ID.",
+  "more.menu": "More",
+  "more.language": "Language"
 }

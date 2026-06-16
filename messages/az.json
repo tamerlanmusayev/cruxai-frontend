@@ -182,5 +182,7 @@
   "auth.title": "Davam etmək üçün daxil ol",
   "auth.hint": "Konspekt yaratmaq və kitabxananı saxlamaq üçün pulsuz hesab yarat.",
   "auth.privacy": "Yalnız Google e-poçtundan kitabxananı saxlamaq üçün istifadə edirik. Heç nə paylaşılmır.",
-  "auth.notConfigured": "Google ilə giriş hələ qurulmayıb. NEXT_PUBLIC_GOOGLE_CLIENT_ID əlavə et."
+  "auth.notConfigured": "Google ilə giriş hələ qurulmayıb. NEXT_PUBLIC_GOOGLE_CLIENT_ID əlavə et.",
+  "more.menu": "Daha çox",
+  "more.language": "Dil"
 }
