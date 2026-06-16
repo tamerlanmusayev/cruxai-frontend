@@ -68,13 +68,6 @@ export default function HomePage() {
   const overLimit = validMb > MAX_TOTAL_MB || valid.length > MAX_FILES;
   const canStart = valid.length > 0 && !overLimit;
 
-  const features = [
-    { icon: '📓', label: t('home.f.summary') },
-    { icon: '🔊', label: t('home.f.audio') },
-    { icon: '🧠', label: t('home.f.quiz') },
-    { icon: '📎', label: t('home.f.citations') },
-  ];
-
   function addFiles(incoming: FileList | null) {
     if (!incoming) return;
     setError(null);
@@ -156,9 +149,9 @@ export default function HomePage() {
 
   return (
     <div className="text-center">
-      <div className="mx-auto mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs text-slate-300">
+      <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-1.5 text-xs font-medium text-emerald-300">
         <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-        {t('home.badge')}
+        🆓 {t('free.badge')}
       </div>
 
       <h1 className="mx-auto max-w-2xl text-4xl font-extrabold leading-tight sm:text-6xl">
@@ -167,21 +160,6 @@ export default function HomePage() {
       <p className="mx-auto mt-4 max-w-xl text-lg text-slate-400">
         {t('home.subtitle')}
       </p>
-
-      <div className="mt-6 flex flex-wrap justify-center gap-2">
-        {features.map((f) => (
-          <span
-            key={f.label}
-            className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm text-slate-300"
-          >
-            {f.icon} {f.label}
-          </span>
-        ))}
-      </div>
-
-      <div className="mx-auto mt-4 inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-1.5 text-sm font-medium text-emerald-300">
-        🆓 {t('free.badge')}
-      </div>
 
       <div
         onDragOver={(e) => {
