@@ -41,12 +41,18 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     setMoreOpen(false);
   }, [pathname]);
 
-  // The mobile drawer is full-screen, so close it on Escape (no backdrop to tap).
+  // While the full-screen drawer is open: close on Escape and lock page scroll
+  // so only the drawer scrolls (not the page behind it).
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prevOverflow;
+    };
   }, [open]);
 
   // Swipe-left to dismiss the full-screen drawer.
