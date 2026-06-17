@@ -191,5 +191,6 @@
   "common.loading": "Loading…",
   "lib.signInPrompt": "Sign in to see your library",
   "doc.saved": "Saved ✓",
-  "doc.done": "Done"
+  "doc.done": "Done",
+  "usage.resetsIn": "resets in"
 }

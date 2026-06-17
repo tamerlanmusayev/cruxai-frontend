@@ -182,5 +182,6 @@
   "common.loading": "იტვირთება…",
   "lib.signInPrompt": "ბიბლიოთეკის სანახავად შედი",
   "doc.saved": "შენახულია ✓",
-  "doc.done": "მზადაა"
+  "doc.done": "მზადაა",
+  "usage.resetsIn": "განახლდება:"
 }

@@ -182,5 +182,6 @@
   "common.loading": "Yükleniyor…",
   "lib.signInPrompt": "Kütüphaneni görmek için giriş yap",
   "doc.saved": "Kaydedildi ✓",
-  "doc.done": "Bitti"
+  "doc.done": "Bitti",
+  "usage.resetsIn": "yenilenir:"
 }

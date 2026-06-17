@@ -182,5 +182,6 @@
   "common.loading": "Жүктелуде…",
   "lib.signInPrompt": "Кітапханаңды көру үшін кіріңіз",
   "doc.saved": "Сақталды ✓",
-  "doc.done": "Дайын"
+  "doc.done": "Дайын",
+  "usage.resetsIn": "жаңарады:"
 }

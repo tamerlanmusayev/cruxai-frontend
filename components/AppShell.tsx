@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { LANGS, useT } from '@/lib/i18n';
 import { useTheme } from '@/lib/theme';
 import { useOnline } from '@/lib/socket';
@@ -23,6 +23,14 @@ function fmtTokens(n: number): string {
   return n >= 1000 ? `${Math.round(n / 1000)}k` : String(n);
 }
 
+/** Milliseconds → "H:MM:SS" countdown. */
+function fmtCountdown(ms: number): string {
+  const s = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  return `${h}:${String(m).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+}
+
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { lang, setLang, t } = useT();
   const { theme, toggle } = useTheme();
@@ -32,6 +40,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [usage, setUsage] = useState<UsageStatus | null>(null);
+  const [resetMs, setResetMs] = useState<number | null>(null);
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
 
@@ -58,24 +67,41 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   // Swipe-left to dismiss the full-screen drawer.
   const touchStartX = useRef<number | null>(null);
 
-  // Refresh today's token budget on navigation AND on account change
-  // (login / logout / account switch all change `user` → refetch for the
-  // current userId, so the chip never shows another account's number).
+  const refreshUsage = useCallback(async () => {
+    try {
+      await ensureToken();
+      setUsage(await getUsage());
+    } catch {
+      /* non-critical — quota chip just stays hidden */
+    }
+  }, []);
+
+  // Refresh the token budget on navigation AND on account change (login /
+  // logout / switch change `user` → refetch for the current userId).
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        await ensureToken();
-        const u = await getUsage();
-        if (!cancelled) setUsage(u);
-      } catch {
-        /* non-critical — quota chip just stays hidden */
+    void refreshUsage();
+  }, [pathname, user, refreshUsage]);
+
+  // Live countdown to the rolling-window reset; refetch when it lapses.
+  useEffect(() => {
+    if (!usage?.resetsAt) {
+      setResetMs(null);
+      return;
+    }
+    const target = new Date(usage.resetsAt).getTime();
+    let id: ReturnType<typeof setInterval>;
+    const tick = () => {
+      const ms = target - Date.now();
+      setResetMs(ms > 0 ? ms : 0);
+      if (ms <= 0) {
+        clearInterval(id);
+        void refreshUsage();
       }
-    })();
-    return () => {
-      cancelled = true;
     };
-  }, [pathname, user]);
+    tick();
+    id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [usage?.resetsAt, refreshUsage]);
 
   // Keep the browser tab title in sync with the current page.
   useEffect(() => {
@@ -171,6 +197,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 style={{ width: `${Math.max(0, (usage.remaining / usage.limit) * 100)}%` }}
               />
             </div>
+            {usage.resetsAt && resetMs !== null && (
+              <p
+                className={`mt-1 text-[10px] tabular-nums ${
+                  usage.remaining === 0 ? 'text-amber-400' : 'text-[var(--text-muted)]'
+                }`}
+              >
+                ⟳ {t('usage.resetsIn')} {fmtCountdown(resetMs)}
+              </p>
+            )}
           </div>
         )}
 

@@ -191,5 +191,6 @@
   "common.loading": "Загрузка…",
   "lib.signInPrompt": "Войдите, чтобы увидеть свою библиотеку",
   "doc.saved": "Сохранено ✓",
-  "doc.done": "Готово"
+  "doc.done": "Готово",
+  "usage.resetsIn": "обновится через"
 }

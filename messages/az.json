@@ -191,5 +191,6 @@
   "common.loading": "Yüklənir…",
   "lib.signInPrompt": "Kitabxananı görmək üçün daxil ol",
   "doc.saved": "Saxlanıldı ✓",
-  "doc.done": "Hazırdır"
+  "doc.done": "Hazırdır",
+  "usage.resetsIn": "yenilənir:"
 }

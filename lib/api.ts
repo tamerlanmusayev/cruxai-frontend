@@ -353,6 +353,8 @@ export interface UsageStatus {
   remaining: number;
   /** Estimated token cost of one full single-document flow. */
   fullFlow: number;
+  /** ISO time the rolling 24h window refills, or null if nothing spent yet. */
+  resetsAt: string | null;
 }
 
 /** Today's remaining AI-token budget for the current user. */

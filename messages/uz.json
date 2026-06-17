@@ -182,5 +182,6 @@
   "common.loading": "Yuklanmoqda…",
   "lib.signInPrompt": "Kutubxonangizni ko‘rish uchun kiring",
   "doc.saved": "Saqlandi ✓",
-  "doc.done": "Tayyor"
+  "doc.done": "Tayyor",
+  "usage.resetsIn": "yangilanadi:"
 }
