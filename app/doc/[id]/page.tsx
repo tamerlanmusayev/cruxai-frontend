@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
-import { DocumentDetail, getDocument, updateSummary } from '@/lib/api';
+import { DocumentDetail, getDocument, getUsageCosts, updateSummary } from '@/lib/api';
 import SummaryActions from '@/components/SummaryActions';
 import AiProgress from '@/components/AiProgress';
 import MarkdownEditor from '@/components/MarkdownEditor';
@@ -17,6 +17,11 @@ export default function DocPage() {
   const { id } = useParams<{ id: string }>();
   const [doc, setDoc] = useState<DocumentDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [summaryCost, setSummaryCost] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    getUsageCosts().then((c) => setSummaryCost(c?.costs.summary)).catch(() => {});
+  }, []);
 
   // inline editing of the generated summary (auto-saved)
   const [editing, setEditing] = useState(false);
@@ -93,6 +98,7 @@ export default function DocPage() {
     return (
       <AiProgress
         steps={[t('prog.collect'), t('prog.read'), t('prog.summarize'), t('prog.almost')]}
+        estimate={summaryCost}
       />
     );
   }

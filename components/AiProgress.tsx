@@ -8,7 +8,14 @@ import { useEffect, useState } from 'react';
  * and roughly how much is left during the wait. The real result replaces it
  * when it arrives.
  */
-export default function AiProgress({ steps }: { steps: string[] }) {
+export default function AiProgress({
+  steps,
+  estimate,
+}: {
+  steps: string[];
+  /** Estimated tokens this AI request spends (shown to the user). */
+  estimate?: number;
+}) {
   const [pct, setPct] = useState(6);
 
   useEffect(() => {
@@ -55,6 +62,11 @@ export default function AiProgress({ steps }: { steps: string[] }) {
         </span>
       </div>
       <p className="font-medium transition-all duration-300">{steps[idx]}</p>
+      {estimate ? (
+        <p className="text-xs text-[var(--text-muted)]">
+          ≈ {estimate >= 1000 ? `${Math.round(estimate / 1000)}k` : estimate} tokens
+        </p>
+      ) : null}
       <div className="flex gap-1.5">
         {steps.map((s, i) => (
           <span

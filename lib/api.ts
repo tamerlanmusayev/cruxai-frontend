@@ -357,6 +357,24 @@ export interface UsageStatus {
   resetsAt: string | null;
 }
 
+export interface UsageCosts {
+  /** Per-operation estimated token cost (summary, quiz, exam, …). */
+  costs: Record<string, number>;
+  fullFlow: number;
+  userLimit: number;
+}
+
+/** Public per-operation token estimates (config-driven on the backend). */
+export async function getUsageCosts(): Promise<UsageCosts | null> {
+  try {
+    const res = await fetch(`${API_URL}/usage/costs`);
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
 /** Today's remaining AI-token budget for the current user. */
 export async function getUsage(): Promise<UsageStatus> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('cruxai_token') : null;

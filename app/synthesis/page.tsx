@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { LibraryItem, Synthesis, getLibrary, runSynthesis } from '@/lib/api';
+import { LibraryItem, Synthesis, getLibrary, getUsageCosts, runSynthesis } from '@/lib/api';
 import { ensureToken } from '@/lib/auth';
 import { useAuth } from '@/lib/auth-context';
 import AiProgress from '@/components/AiProgress';
@@ -18,6 +18,11 @@ export default function SynthesisPage() {
   const [result, setResult] = useState<Synthesis | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [synthCost, setSynthCost] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    getUsageCosts().then((c) => setSynthCost(c?.costs.synthesis)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!signedIn) return;
@@ -99,7 +104,7 @@ export default function SynthesisPage() {
       </div>
 
       {busy && !result && (
-        <AiProgress steps={[t('prog.collect'), t('prog.compare'), t('prog.synth'), t('prog.almost')]} />
+        <AiProgress steps={[t('prog.collect'), t('prog.compare'), t('prog.synth'), t('prog.almost')]} estimate={synthCost} />
       )}
 
       {result && (
