@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { BookHit, BookRecommendation, getBooksCount, recommendBooks, searchBooks } from '@/lib/api';
 import { ensureToken } from '@/lib/auth';
+import LiveTokens from '@/components/LiveTokens';
 import Modal from '@/components/Modal';
 import { useT } from '@/lib/i18n';
 
@@ -182,7 +183,12 @@ export default function BookSearchModal({ onClose, onUse, onOverview, initialTab
           </div>
 
           <div className="mt-4 max-h-[55vh] space-y-2 overflow-y-auto">
-            {recBusy && <p className="text-sm text-[var(--text-muted)]">{t('rec.thinking')}</p>}
+            {recBusy && (
+              <div className="space-y-1">
+                <p className="text-sm text-[var(--text-muted)]">{t('rec.thinking')}</p>
+                <LiveTokens />
+              </div>
+            )}
             {!recBusy && recs?.length === 0 && (
               <p className="text-sm text-[var(--text-muted)]">{t('books.none')}</p>
             )}

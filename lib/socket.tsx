@@ -17,7 +17,18 @@ interface DocReady {
   title: string;
 }
 
-const SocketCtx = createContext<{ online: number }>({ online: 0 });
+export interface AiTokens {
+  kind: string;
+  inputTokens: number;
+  outputTokens: number;
+  credits: number;
+  done: boolean;
+}
+
+const SocketCtx = createContext<{ online: number; aiTokens: AiTokens | null }>({
+  online: 0,
+  aiTokens: null,
+});
 
 let socket: Socket | null = null;
 let lastOnline = 0; // cached so late-mounting components show the count immediately
@@ -30,6 +41,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const { t } = useT();
   const [online, setOnline] = useState(lastOnline);
   const [toasts, setToasts] = useState<DocReady[]>([]);
+  const [aiTokens, setAiTokens] = useState<AiTokens | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -47,8 +59,16 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
         setOnline(n);
       };
       const onReady = (d: DocReady) => setToasts((prev) => [...prev, d]);
+      const onTokens = (e: AiTokens) => {
+        setAiTokens(e);
+        // Clear a finished op shortly after, so stale numbers don't linger.
+        if (e.done) {
+          setTimeout(() => setAiTokens((cur) => (cur?.done ? null : cur)), 2500);
+        }
+      };
       socket.on('online', onCount);
       socket.on('doc:ready', onReady);
+      socket.on('ai:tokens', onTokens);
       // Pull current values immediately for late mounts.
       setOnline(lastOnline);
     })();
@@ -62,7 +82,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <SocketCtx.Provider value={{ online }}>
+    <SocketCtx.Provider value={{ online, aiTokens }}>
       {children}
       {/* "ready" toasts — appear even while browsing other pages */}
       <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
@@ -98,3 +118,4 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 }
 
 export const useOnline = () => useContext(SocketCtx).online;
+export const useAiTokens = () => useContext(SocketCtx).aiTokens;

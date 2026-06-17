@@ -1,6 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useAiTokens } from '@/lib/socket';
+
+const k = (n: number) => (n >= 1000 ? `${Math.round(n / 1000)}k` : String(n));
 
 /**
  * Staged "the AI is working" indicator: a progress ring that eases toward
@@ -17,6 +20,7 @@ export default function AiProgress({
   estimate?: number;
 }) {
   const [pct, setPct] = useState(6);
+  const live = useAiTokens();
 
   useEffect(() => {
     const iv = setInterval(() => {
@@ -62,10 +66,12 @@ export default function AiProgress({
         </span>
       </div>
       <p className="font-medium transition-all duration-300">{steps[idx]}</p>
-      {estimate ? (
-        <p className="text-xs text-[var(--text-muted)]">
-          ≈ {estimate >= 1000 ? `${Math.round(estimate / 1000)}k` : estimate} tokens
+      {live ? (
+        <p className="text-xs tabular-nums text-[var(--text-muted)]">
+          {k(live.outputTokens)} tokens · {k(live.credits)} cr
         </p>
+      ) : estimate ? (
+        <p className="text-xs text-[var(--text-muted)]">≈ {k(estimate)} tokens</p>
       ) : null}
       <div className="flex gap-1.5">
         {steps.map((s, i) => (
