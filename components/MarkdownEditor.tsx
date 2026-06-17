@@ -3,6 +3,10 @@
 import { useEditor, EditorContent, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableHeader } from '@tiptap/extension-table-header';
+import { TableCell } from '@tiptap/extension-table-cell';
 import { Markdown } from 'tiptap-markdown';
 
 /**
@@ -21,7 +25,11 @@ export default function MarkdownEditor({
     extensions: [
       StarterKit.configure({ heading: { levels: [2, 3] } }),
       Link.configure({ openOnClick: false, autolink: true }),
-      Markdown.configure({ html: false, linkify: true, transformPastedText: true }),
+      Table.configure({ resizable: false }),
+      TableRow,
+      TableHeader,
+      TableCell,
+      Markdown.configure({ html: true, linkify: true, transformPastedText: true }),
     ],
     content: value,
     onUpdate: ({ editor }) =>
@@ -108,6 +116,12 @@ function Toolbar({ editor }: { editor: Editor }) {
         onClick={() => editor.chain().focus().toggleCodeBlock().run()} />
       <Btn label="🔗" title="Link" active={editor.isActive('link')}
         onClick={() => setLink(editor)} />
+      <Btn label="▦" title="Table" active={editor.isActive('table')}
+        onClick={() =>
+          editor.isActive('table')
+            ? editor.chain().focus().deleteTable().run()
+            : editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+        } />
       <span className="mx-1 h-5 w-px bg-slate-200" />
       <Btn label="↶" title="Undo" onClick={() => editor.chain().focus().undo().run()} />
       <Btn label="↷" title="Redo" onClick={() => editor.chain().focus().redo().run()} />

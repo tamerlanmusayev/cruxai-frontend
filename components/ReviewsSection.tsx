@@ -62,6 +62,8 @@ export default function ReviewsSection() {
     }
   }
 
+  const showcase = !!data && data.count >= 3;
+
   return (
     <section className="mx-auto mt-12 max-w-xl text-left">
       <div className="mb-4 flex items-center justify-between">
@@ -77,29 +79,32 @@ export default function ReviewsSection() {
         </button>
       </div>
 
-      {data && data.count > 0 ? (
-        <div className="mb-4 flex items-center gap-3">
-          <span className="text-3xl font-extrabold grad-text">{data.average.toFixed(1)}</span>
-          <div>
-            <Stars value={data.average} />
-            <p className="text-xs text-[var(--text-muted)]">{t('rating.count', { n: data.count })}</p>
-          </div>
-        </div>
-      ) : (
-        <p className="mb-4 text-sm text-[var(--text-muted)]">{t('reviews.empty')}</p>
-      )}
-
-      <div className="space-y-2">
-        {data?.items.map((r) => (
-          <div key={r.id} className="glass p-3">
-            <div className="flex items-center justify-between">
-              <Stars value={r.rating} size="text-sm" />
-              <span className="text-xs text-[var(--text-muted)]">{r.name || 'Anonymous'}</span>
+      {/* Social proof is only shown once it's real (>= 3 reviews) — an empty
+          or thin showcase reads worse than none. The "leave a review" button
+          above always stays so the first reviews can still be collected. */}
+      {showcase && (
+        <>
+          <div className="mb-4 flex items-center gap-3">
+            <span className="text-3xl font-extrabold grad-text">{data!.average.toFixed(1)}</span>
+            <div>
+              <Stars value={data!.average} />
+              <p className="text-xs text-[var(--text-muted)]">{t('rating.count', { n: data!.count })}</p>
             </div>
-            {r.comment && <p className="mt-1.5 text-sm">{r.comment}</p>}
           </div>
-        ))}
-      </div>
+
+          <div className="space-y-2">
+            {data!.items.map((r) => (
+              <div key={r.id} className="glass p-3">
+                <div className="flex items-center justify-between">
+                  <Stars value={r.rating} size="text-sm" />
+                  <span className="text-xs text-[var(--text-muted)]">{r.name || 'Anonymous'}</span>
+                </div>
+                {r.comment && <p className="mt-1.5 text-sm">{r.comment}</p>}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       {open && (
         <Modal onClose={() => setOpen(false)}>

@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 import { DocumentDetail, getDocument, updateSummary } from '@/lib/api';
 import SummaryActions from '@/components/SummaryActions';
 import AiProgress from '@/components/AiProgress';
@@ -220,7 +221,7 @@ export default function DocPage() {
             ) : null}
 
             <section className="prose-note mt-6">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
                 {doc.summary?.contentMd ?? ''}
               </ReactMarkdown>
             </section>
