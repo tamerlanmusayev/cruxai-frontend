@@ -314,8 +314,14 @@ export default function HomePage() {
 
       {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
 
-      <details className="mx-auto mt-6 max-w-xl text-left text-sm text-slate-400">
-        <summary className="cursor-pointer select-none text-center text-xs text-slate-500 hover:text-slate-300">
+      <details className="group mx-auto mt-6 max-w-xl text-left text-sm text-slate-400">
+        <summary className="mx-auto flex w-fit cursor-pointer select-none items-center gap-1.5 text-xs text-slate-500 transition-colors duration-200 hover:text-brand [&::-webkit-details-marker]:hidden">
+          <span
+            aria-hidden
+            className="transition-transform duration-200 group-hover:translate-y-0.5 group-open:rotate-180"
+          >
+            ▾
+          </span>
           {t('home.tips.title')}
         </summary>
         <ul className="mt-3 list-disc space-y-1 pl-5">
